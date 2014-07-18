@@ -7,25 +7,20 @@
 
 
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
+
 import java.io.IOException;
 import java.math.BigInteger;
 
-import org.apache.poi.hssf.record.chart.TickRecord;
+
 import org.docx4j.jaxb.Context;
 import org.docx4j.model.structure.PageSizePaper;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.wml.*;
-import org.docx4j.wml.TcPrInner.VMerge;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import org.docx4j.jaxb.Context;
-import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.relationships.Namespaces;
 
 import org.docx4j.XmlUtils;
