@@ -35,7 +35,7 @@ public class automate {
 	private static final String strtApplicants = "<td class=\"ncDetailLabel\">Applicants: </td> \n               <td class=\"ncDetailText\"><span class=\"notranslate\">";
 	
 	private static String wholePage;
-	private static StringBuilder patentResult;
+
 	
 	private static WordprocessingMLPackage  wordMLPackage;
     private static ObjectFactory factory;
@@ -107,7 +107,7 @@ public class automate {
 		Document doc = Jsoup.connect(url).userAgent("Mozilla").get();
 				
 		wholePage = doc.toString();
-		patentResult = new StringBuilder();
+
 		
 		
 		String title = doc.title();
@@ -122,12 +122,10 @@ public class automate {
 		
 		if(patNum.length() == 7) {
 			patentColumnNum = "US" + patNum;
-			patentResult.append(patentColumnNum + "\n");
 			System.out.println(patentColumnNum);
 		}
 		else {
 			patentColumnNum = "US Patent Application #:\n" + "US" + patNum;
-			patentResult.append(patentColumnNum + "\n");
 			System.out.println(patentColumnNum);
 		}
 		
@@ -144,7 +142,6 @@ public class automate {
 		String year = appDate.split("\\.")[2];
 		
 		String patentColumnDate = getMonth(month) + " " + day + ", " + year + "\n";
-		patentResult.append(patentColumnDate + "\n");
 		System.out.println(patentColumnDate);
 
 		
@@ -152,7 +149,6 @@ public class automate {
 		start = wholePage.indexOf(strtInventors);
 		skip = strtInventors.length();	
 		
-		patentResult.append("Inventor(s);" + "\n");
 		System.out.println("Inventor(s):");
 		getNames(start, skip);
 		
@@ -160,12 +156,10 @@ public class automate {
 		start = wholePage.indexOf(strtApplicants);
 		skip = strtApplicants.length();
 		
-		patentResult.append("Assignee(s);" + "\n");
 		System.out.println("Assignee(s):");
 		getNames(start, skip);
 
 				
-		patentResult.append(invName + "\n" + "\n");
 		System.out.println(invName + "\n");
 
 		Element descriptionElement = doc.select("meta[name=description]").get(1);
@@ -175,7 +169,6 @@ public class automate {
 		description = description.split("&gt;")[1];
 		description = description.substring(0, description.length() - 6);
 		
-		patentResult.append(description + "\n");
 		System.out.println(description);
 		
 		
@@ -420,10 +413,8 @@ public class automate {
 		
 		
 		for(int i = 0; i < nameArray.length - 1; i++){
-			patentResult.append(nameArray[i] + "\n");
 			System.out.println(nameArray[i]);
 		}
-		patentResult.append("\n");
 		System.out.println();
 	}
 		
