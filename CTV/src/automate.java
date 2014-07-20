@@ -106,6 +106,7 @@ public class automate {
 		
 //		url = "http://patentscope.wipo.int/search/en/detail.jsf?docId=WO2012136993";
 		url = "http://patentscope.wipo.int/search/en/detail.jsf?docId=US74058396";
+//		url = "http://patentscope.wipo.int/search/en/detail.jsf?docId=EP96220449";
 //		url = "http://patentscope.wipo.int/search/en/detail.jsf?docId=US76429465";
 //		url = "http://patentscope.wipo.int/search/en/detail.jsf?docId=US73463068";
 
@@ -192,7 +193,7 @@ public class automate {
             Tbl Appendix2 = (Tbl)tables.get(1);  
             Appendix2.getContent().add(tableRow);
 
-            String newFileName = fileName.substring(0, fileName.length()-4) + "_1.docx"; 
+            String newFileName = fileName.substring(0, fileName.length()-5) + "_1.docx"; 
                     	
             wordMLPackage.save(new java.io.File(newFileName));
         } else {
