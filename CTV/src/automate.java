@@ -86,6 +86,7 @@ public class automate {
         border.setSz(new BigInteger("4"));
         border.setSpace(new BigInteger("0"));
         border.setVal(STBorder.SINGLE);
+        
  
         TblBorders borders = new TblBorders();
         borders.setBottom(border);
@@ -172,10 +173,6 @@ public class automate {
 		System.out.println(description);
 		
 		
-//		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-//		StringSelection str = new StringSelection(patentResult.toString());
-//		clipboard.setContents( str, null );
-		
 		wordMLPackage = WordprocessingMLPackage.createPackage(PageSizePaper.LETTER, true);
         factory = Context.getWmlObjectFactory();
  
@@ -193,10 +190,9 @@ public class automate {
         table.getContent().add(tableRow);
         addBorders(table);
         
-//        addTableCellWithWidth(tableRow, "Field 1", 5000);
  
         wordMLPackage.getMainDocumentPart().addObject(table);
-        wordMLPackage.save(new java.io.File("/Users/kashif/Desktop/work.docx") );	
+        wordMLPackage.save(new java.io.File("/Users/kashif/Desktop/" + invName.replace(" ", "_") + ".docx") );	
 	}	
 	
     
@@ -217,9 +213,9 @@ public class automate {
         Text dateText = factory.createText();
         Br br = factory.createBr();
 
-//        numText.setValue("");
         numTitle.setValue("US Patent #:");
         numText.setValue(patentColumnNum);
+//      rspc.getContent().add(link);
         
         dateTitle.setValue("Filing date: ");
         dateText.setValue(patentColumnDate);
@@ -263,6 +259,7 @@ public class automate {
 			rel.setTargetMode("External");  
 									
 			wordMLPackage.getMainDocumentPart().getRelationshipsPart().addRelationship(rel);
+			
 			
 			// addRelationship sets the rel's @Id
 			
