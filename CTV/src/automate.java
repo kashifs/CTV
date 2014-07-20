@@ -1,18 +1,22 @@
 
 /**
  * 
- * @author Kashif Smith main method for taking a US patent number and inputting the 
+ * @author Kashif Smith 
+ * main method for taking a US patent number and inputting the 
  *		   correctly formatted data.
  */
 
 
 
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBElement;
 
 import org.docx4j.jaxb.Context;
@@ -26,6 +30,7 @@ import org.jsoup.nodes.Element;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.openpackaging.parts.relationships.Namespaces;
 import org.docx4j.XmlUtils;
+import org.docx4j.wml.ObjectFactory;
 import org.docx4j.wml.P;
 import org.docx4j.wml.P.Hyperlink;
 
@@ -109,7 +114,6 @@ public class automate {
 		wholePage = doc.toString();
 
 		
-		
 		String title = doc.title();
 		String patNum = title.substring(0, title.indexOf(' '));
 		String invName =  title.substring(title.indexOf(' ') + 1);
@@ -119,72 +123,91 @@ public class automate {
 			patNum = patNum.substring(1);
 		
 		String patentColumnNum = "US" + patNum;
-
-		
 		
 		int start = wholePage.indexOf(strtAppDate);
 		int skip = strtAppDate.length();
 
-
 		String appDate = wholePage.substring(start + skip, start + skip + 1 + 9);
-		
 		
 		String day = appDate.split("\\.")[0];
 		String month = appDate.split("\\.")[1];
 		String year = appDate.split("\\.")[2];
 		
-		String patentColumnDate = getMonth(month) + " " + day + ", " + year + "\n";
-		System.out.println(patentColumnDate);
-
-		
+		String patentColumnDate = getMonth(month) + " " + day + ", " + year + "\n";	
 		
 		start = wholePage.indexOf(strtInventors);
-		skip = strtInventors.length();	
-		
-		System.out.println("Inventor(s):");
-		getNames(start, skip);
+		skip = strtInventors.length();
 		
 
 		start = wholePage.indexOf(strtApplicants);
 		skip = strtApplicants.length();
-		
-		System.out.println("Assignee(s):");
-		getNames(start, skip);
 
 				
-		System.out.println(invName + "\n");
 
 		Element descriptionElement = doc.select("meta[name=description]").get(1);
-		
 		String description = descriptionElement.getAllElements().toString();
 		
 		description = description.split("&gt;")[1];
 		description = description.substring(0, description.length() - 6);
 		
-		System.out.println(description);
-		
 		
 		wordMLPackage = WordprocessingMLPackage.createPackage(PageSizePaper.LETTER, true);
         factory = Context.getWmlObjectFactory();
         
-        WordprocessingMLPackage wordMLPackage =  
-        		WordprocessingMLPackage.load(new java.io.File("/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx"));
+        String fileName = null;
+        
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                ".docx files", "docx");
+        fileChooser.setFileFilter(filter);
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+        int result = fileChooser.showOpenDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            fileName = selectedFile.getAbsolutePath();
+        }
+        
+        if (fileName != null) {
+        	WordprocessingMLPackage wordMLPackage =  
+        		WordprocessingMLPackage.load(new java.io.File(fileName));
+        	
+        	MainDocumentPart mp = wordMLPackage.getMainDocumentPart();
+            Styles styles = mp.getStyleDefinitionsPart().getJaxbElement();
+            changeNormalFont(styles, factory, "Arial");
+            		
+            List<Object> tables = getAllElementFromObject(wordMLPackage.getMainDocumentPart(), Tbl.class);
+            		
+              	
+            Tr tableRow = factory.createTr();
+                    
+            
+            addFirstColumn(tableRow, patentColumnNum, patentColumnDate);
+            addSecondColumn(tableRow, wholePage.indexOf(strtInventors), strtInventors.length(),
+            							wholePage.indexOf(strtApplicants), strtApplicants.length());
+            
+            addColumn(tableRow, invName);
+            addColumn(tableRow, description);
+                    
+                    
+            Tbl Appendix2 = (Tbl)tables.get(1);  
+            Appendix2.getContent().add(tableRow);
+
+            String newFileName = fileName.substring(0, fileName.length()-4) + "_1.docx"; 
+                    	
+            wordMLPackage.save(new java.io.File(newFileName));
+        } else {
+			System.out.println("Could not find file.");
+			return;
+		}
         		
-//        WordprocessingMLPackage WordMLPackage = WordprocessingMLPackage.load(new File(docxPath));
-//        StyleDefinitionsPart style = wordMLPackage.getMainDocumentPart().getStyleDefinitionsPart();
-        
-        MainDocumentPart mp = wordMLPackage.getMainDocumentPart();
-        Styles styles = mp.getStyleDefinitionsPart().getJaxbElement();
-        ObjectFactory factory = Context.getWmlObjectFactory ();
-        
-        for (Style s : styles.getStyle ())
-        {
-//        	System.out.println("Styles: " + s.getName().getVal());
-            if (s.getName ().getVal ().equals("Normal"))
-            {
+	}	
+	
+    
+    private static void changeNormalFont(Styles styles, ObjectFactory factory, String string) {
+    	for (Style s : styles.getStyle ()) {
+            if (s.getName ().getVal ().equals("Normal")) {
                 RPr rpr = s.getRPr ();
-                if (rpr == null)
-                {
+                if (rpr == null) {
                     rpr = factory.createRPr ();
                     s.setRPr (rpr);   
                 }            
@@ -196,64 +219,13 @@ public class automate {
                     size.setVal(BigInteger.valueOf(20));
                     rpr.setSz(size);
                 }
-                // This is where you set your font name.
-                rf.setAscii ("Arial");   
+                rf.setAscii (string);   
             }
         }
-        
-//        org.docx4j.wml.R  yourRun;
-//        yourRun.getRPr().setSz(an HpsMeasure);
-        
-        
-//        System.out.println("Default character style: " + style.getDefaultParagraphStyle().toString());
-        		
-        List<Object> tables = getAllElementFromObject(wordMLPackage.getMainDocumentPart(), Tbl.class);
-        		
-//        System.out.println("number of tables: " + tables.size());
-             		
-        Tr tableRow = factory.createTr();
-                
-//        addFirstColumn(tableRow, "12341", "1234134");
-//        addFirstColumn(tableRow, "12341", "1234134");
-//        addFirstColumn(tableRow, "12341", "1234134");
-        
-        addFirstColumn(tableRow, patentColumnNum, patentColumnDate);
-        addSecondColumn(tableRow, wholePage.indexOf(strtInventors), strtInventors.length(),
-        							wholePage.indexOf(strtApplicants), strtApplicants.length());
-        
-        addColumn(tableRow, invName);
-        addColumn(tableRow, description);
-                
-                
-        Tbl tableA = (Tbl)tables.get(1);  
-        tableA.getContent().add(tableRow);
-                
-        
+	}
 
-        		
-        wordMLPackage.save(new java.io.File("/Users/kashif/Desktop/open_save_close.docx"));
- 
-        Tbl table = factory.createTbl();
-        tableRow = factory.createTr();
-        
-        addFirstColumn(tableRow, patentColumnNum, patentColumnDate);
-        addSecondColumn(tableRow, wholePage.indexOf(strtInventors), strtInventors.length(),
-        							wholePage.indexOf(strtApplicants), strtApplicants.length());
-        
-        addColumn(tableRow, invName, 2690);
-        addColumn(tableRow, description, 5150);
- 
- 
-        table.getContent().add(tableRow);
-        
- 
-        wordMLPackage.getMainDocumentPart().addObject(table);
-        wordMLPackage.save(new java.io.File("/Users/kashif/Desktop/" + invName.replace(" ", "_") + ".docx"));
-        
-	}	
-	
-    
-    private static void addFirstColumn(Tr tableRow, String patentColumnNum, String patentColumnDate) {
+
+	private static void addFirstColumn(Tr tableRow, String patentColumnNum, String patentColumnDate) {
         Tc tableCell = factory.createTc();
         
         Hyperlink link = createHyperlink(wordMLPackage, patentColumnNum, url);
@@ -304,9 +276,7 @@ public class automate {
     }
     
     public static Hyperlink createHyperlink(WordprocessingMLPackage wordMLPackage, String linkText, String url) {
-		
 		try {
-
 			// We need to add a relationship to word/_rels/document.xml.rels
 			// but since its external, we don't use the 
 			// usual wordMLPackage.getMainDocumentPart().addTargetPart
@@ -343,9 +313,7 @@ public class automate {
 			
 			e.printStackTrace();
 			return null;
-		}
-		
-		
+		}	
 	}
     
     
@@ -401,10 +369,7 @@ public class automate {
 		
         spc.getContent().add(rspc);
         tableCell.getContent().add(spc);
-        
-//        setCellWidth(tableCell, 2705);
-        
-        
+                
         tableRow.getContent().add(tableCell);
     }
     
@@ -417,67 +382,6 @@ public class automate {
         
         tableRow.getContent().add(tableCell);
     }
-    
-    private static void addColumn(Tr tableRow, String content, int width) {
-        Tc tableCell = factory.createTc();
-
-        tableCell.getContent().add(
-            wordMLPackage.getMainDocumentPart().createParagraphOfText(
-                content));
-        
-        setCellWidth(tableCell, width);
-        
-        tableRow.getContent().add(tableCell);
-    }
-    
-
-    /**
-     *  In this method we create a table cell properties object and a table width
-     *  object. We set the given width on the width object and then add it to
-     *  the properties object. Finally we set the properties on the table cell.
-     */
-    private static void setCellWidth(Tc tableCell, int width) {
-        TcPr tableCellProperties = new TcPr();
-        TblWidth tableWidth = new TblWidth();
-        tableWidth.setW(BigInteger.valueOf(width));
-        tableCellProperties.setTcW(tableWidth);
-        tableCell.setTcPr(tableCellProperties);
-    }
-    
-    /**
-     *  In this method we create a cell and add the given content to it.
-     *  If the given width is greater than 0, we set the width on the cell.
-     *  Finally, we add the cell to the row.
-     */
-    private static void addTableCellWithWidth(Tr row, String content, int width){
-        Tc tableCell = factory.createTc();
-        tableCell.getContent().add(
-            wordMLPackage.getMainDocumentPart().createParagraphOfText(
-                content));
- 
-        if (width > 0) {
-            setCellWidth(tableCell, width);
-        }
-        row.getContent().add(tableCell);
-    }
-    
-
-    
-    
-	
-	private static void getNames(int start, int skip) {
-		String names = wholePage.substring(start + skip, start + 200);
-		String[] nameArray = names.split("<br />");
-		
-		
-		for(int i = 0; i < nameArray.length - 1; i++){
-			System.out.println(nameArray[i]);
-		}
-		System.out.println();
-	}
-		
-	
-	
 }
 
 
