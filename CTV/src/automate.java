@@ -24,6 +24,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
+import org.docx4j.openpackaging.parts.WordprocessingML.StyleDefinitionsPart;
 import org.docx4j.openpackaging.parts.relationships.Namespaces;
 import org.docx4j.XmlUtils;
 import org.docx4j.wml.P;
@@ -215,9 +216,75 @@ public class automate {
 		
 		wordMLPackage = WordprocessingMLPackage.createPackage(PageSizePaper.LETTER, true);
         factory = Context.getWmlObjectFactory();
+        
+        WordprocessingMLPackage wordMLPackage =  
+        		WordprocessingMLPackage.load(new java.io.File("/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx"));
+        		
+//        WordprocessingMLPackage WordMLPackage = WordprocessingMLPackage.load(new File(docxPath));
+//        StyleDefinitionsPart style = wordMLPackage.getMainDocumentPart().getStyleDefinitionsPart();
+        
+        MainDocumentPart mp = wordMLPackage.getMainDocumentPart();
+        Styles styles = mp.getStyleDefinitionsPart().getJaxbElement();
+        ObjectFactory factory = Context.getWmlObjectFactory ();
+        
+        for (Style s : styles.getStyle ())
+        {
+//        	System.out.println("Styles: " + s.getName().getVal());
+            if (s.getName ().getVal ().equals("Normal"))
+            {
+                RPr rpr = s.getRPr ();
+                if (rpr == null)
+                {
+                    rpr = factory.createRPr ();
+                    s.setRPr (rpr);   
+                }            
+                RFonts rf = rpr.getRFonts ();
+                if (rf == null) {
+                    rf = factory.createRFonts ();
+                    rpr.setRFonts (rf);
+                    HpsMeasure size = new HpsMeasure();
+                    size.setVal(BigInteger.valueOf(20));
+                    rpr.setSz(size);
+                }
+                // This is where you set your font name.
+                rf.setAscii ("Arial");   
+            }
+        }
+        
+//        org.docx4j.wml.R  yourRun;
+//        yourRun.getRPr().setSz(an HpsMeasure);
+        
+        
+//        System.out.println("Default character style: " + style.getDefaultParagraphStyle().toString());
+        		
+        List<Object> tables = getAllElementFromObject(wordMLPackage.getMainDocumentPart(), Tbl.class);
+        		
+//        System.out.println("number of tables: " + tables.size());
+             		
+        Tr tableRow = factory.createTr();
+                
+//        addFirstColumn(tableRow, "12341", "1234134");
+//        addFirstColumn(tableRow, "12341", "1234134");
+//        addFirstColumn(tableRow, "12341", "1234134");
+        
+        addFirstColumn(tableRow, patentColumnNum, patentColumnDate);
+        addSecondColumn(tableRow, wholePage.indexOf(strtInventors), strtInventors.length(),
+        							wholePage.indexOf(strtApplicants), strtApplicants.length());
+        
+        addColumn(tableRow, invName);
+        addColumn(tableRow, description);
+                
+                
+        Tbl tableA = (Tbl)tables.get(1);  
+        tableA.getContent().add(tableRow);
+                
+        
+
+        		
+        wordMLPackage.save(new java.io.File("/Users/kashif/Desktop/open_save_close.docx"));
  
         Tbl table = factory.createTbl();
-        Tr tableRow = factory.createTr();
+        tableRow = factory.createTr();
         
         addFirstColumn(tableRow, patentColumnNum, patentColumnDate);
         addSecondColumn(tableRow, wholePage.indexOf(strtInventors), strtInventors.length(),
@@ -234,7 +301,6 @@ public class automate {
         wordMLPackage.getMainDocumentPart().addObject(table);
         wordMLPackage.save(new java.io.File("/Users/kashif/Desktop/" + invName.replace(" ", "_") + ".docx"));
         
-		openDocx("/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx");
 	}	
 	
     
@@ -283,8 +349,6 @@ public class automate {
 
         spc.getContent().add(rspc);
         tableCell.getContent().add(spc);
-        
-        setCellWidth(tableCell, 2625);
 
         
         tableRow.getContent().add(tableCell);
@@ -389,7 +453,7 @@ public class automate {
         spc.getContent().add(rspc);
         tableCell.getContent().add(spc);
         
-        setCellWidth(tableCell, 2705);
+//        setCellWidth(tableCell, 2705);
         
         
         tableRow.getContent().add(tableCell);
