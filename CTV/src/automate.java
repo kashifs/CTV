@@ -24,7 +24,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
-import org.docx4j.openpackaging.parts.WordprocessingML.StyleDefinitionsPart;
 import org.docx4j.openpackaging.parts.relationships.Namespaces;
 import org.docx4j.XmlUtils;
 import org.docx4j.wml.P;
@@ -89,60 +88,11 @@ public class automate {
 			for (Object child : children) {
 				result.addAll(getAllElementFromObject(child, toSearch));
 			}
- 
 		}
 		return result;
 	}
 	
-	private static void openDocx(String filename) throws Docx4JException{
-		WordprocessingMLPackage wordMLPackage =  
-		WordprocessingMLPackage.load(new java.io.File(filename));
-		
-		MainDocumentPart documentPart = wordMLPackage.getMainDocumentPart();
-		
-		List<Object> tables = getAllElementFromObject(wordMLPackage.getMainDocumentPart(), Tbl.class);
-		
-		System.out.println("number of tables: " + tables.size());
-		
-		
-		Tr tableRow = factory.createTr();
-        
-        addFirstColumn(tableRow, "12341", "1234134");
-        addFirstColumn(tableRow, "12341", "1234134");
-        addFirstColumn(tableRow, "12341", "1234134");
-        
-        
-        Tbl table = (Tbl)tables.get(1);
-        
-        table.getContent().add(tableRow);
-        
-        
-        
-		
-        wordMLPackage.save(new java.io.File("/Users/kashif/Desktop/open_save_close.docx"));
-	}
-    
-    /**
-     *  In this method we'll add the borders to the table.
-     */
-    private static void addBorders(Tbl table) {
-        table.setTblPr(new TblPr());
-        CTBorder border = new CTBorder();
-        border.setColor("auto");
-        border.setSz(new BigInteger("4"));
-        border.setSpace(new BigInteger("0"));
-        border.setVal(STBorder.SINGLE);
-        
- 
-        TblBorders borders = new TblBorders();
-        borders.setBottom(border);
-        borders.setLeft(border);
-        borders.setRight(border);
-        borders.setTop(border);
-        borders.setInsideH(border);
-        borders.setInsideV(border);
-        table.getTblPr().setTblBorders(borders);
-    }
+
  
 	public static void main(String[] args) throws IOException, Docx4JException {
 		
@@ -295,7 +245,6 @@ public class automate {
  
  
         table.getContent().add(tableRow);
-        addBorders(table);
         
  
         wordMLPackage.getMainDocumentPart().addObject(table);
