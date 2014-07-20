@@ -10,7 +10,10 @@
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.xml.bind.JAXBElement;
 
 import org.docx4j.jaxb.Context;
 import org.docx4j.model.structure.PageSizePaper;
@@ -20,9 +23,8 @@ import org.docx4j.wml.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-
+import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.openpackaging.parts.relationships.Namespaces;
-
 import org.docx4j.XmlUtils;
 import org.docx4j.wml.P;
 import org.docx4j.wml.P.Hyperlink;
@@ -75,6 +77,49 @@ public class automate {
 	}
 	
 	
+	private static List<Object> getAllElementFromObject(Object obj, Class<?> toSearch) {
+		List<Object> result = new ArrayList<Object>();
+		if (obj instanceof JAXBElement) obj = ((JAXBElement<?>) obj).getValue();
+ 
+		if (obj.getClass().equals(toSearch))
+			result.add(obj);
+		else if (obj instanceof ContentAccessor) {
+			List<?> children = ((ContentAccessor) obj).getContent();
+			for (Object child : children) {
+				result.addAll(getAllElementFromObject(child, toSearch));
+			}
+ 
+		}
+		return result;
+	}
+	
+	private static void openDocx(String filename) throws Docx4JException{
+		WordprocessingMLPackage wordMLPackage =  
+		WordprocessingMLPackage.load(new java.io.File(filename));
+		
+		MainDocumentPart documentPart = wordMLPackage.getMainDocumentPart();
+		
+		List<Object> tables = getAllElementFromObject(wordMLPackage.getMainDocumentPart(), Tbl.class);
+		
+		System.out.println("number of tables: " + tables.size());
+		
+		
+		Tr tableRow = factory.createTr();
+        
+        addFirstColumn(tableRow, "12341", "1234134");
+        addFirstColumn(tableRow, "12341", "1234134");
+        addFirstColumn(tableRow, "12341", "1234134");
+        
+        
+        Tbl table = (Tbl)tables.get(1);
+        
+        table.getContent().add(tableRow);
+        
+        
+        
+		
+        wordMLPackage.save(new java.io.File("/Users/kashif/Desktop/open_save_close.docx"));
+	}
     
     /**
      *  In this method we'll add the borders to the table.
@@ -100,9 +145,12 @@ public class automate {
  
 	public static void main(String[] args) throws IOException, Docx4JException {
 		
+
+
+		
 //		url = "http://patentscope.wipo.int/search/en/detail.jsf?docId=WO2012136993";
-//		url = "http://patentscope.wipo.int/search/en/detail.jsf?docId=US74058396";
-		url = "http://patentscope.wipo.int/search/en/detail.jsf?docId=US76429465";
+		url = "http://patentscope.wipo.int/search/en/detail.jsf?docId=US74058396";
+//		url = "http://patentscope.wipo.int/search/en/detail.jsf?docId=US76429465";
 //		url = "http://patentscope.wipo.int/search/en/detail.jsf?docId=US73463068";
 
 		Document doc = Jsoup.connect(url).userAgent("Mozilla").get();
@@ -119,16 +167,8 @@ public class automate {
 		if(patNum.charAt(0) == '0')
 			patNum = patNum.substring(1);
 		
-		String patentColumnNum;
-		
-		if(patNum.length() == 7) {
-			patentColumnNum = "US" + patNum;
-			System.out.println(patentColumnNum);
-		}
-		else {
-			patentColumnNum = "US Patent Application #:\n" + "US" + patNum;
-			System.out.println(patentColumnNum);
-		}
+		String patentColumnNum = "US" + patNum;
+
 		
 		
 		int start = wholePage.indexOf(strtAppDate);
@@ -192,7 +232,9 @@ public class automate {
         
  
         wordMLPackage.getMainDocumentPart().addObject(table);
-        wordMLPackage.save(new java.io.File("/Users/kashif/Desktop/" + invName.replace(" ", "_") + ".docx") );	
+        wordMLPackage.save(new java.io.File("/Users/kashif/Desktop/" + invName.replace(" ", "_") + ".docx"));
+        
+		openDocx("/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx");
 	}	
 	
     
@@ -213,7 +255,13 @@ public class automate {
         Text dateText = factory.createText();
         Br br = factory.createBr();
 
-        numTitle.setValue("US Patent #:");
+   
+        
+        if(patentColumnNum.length() == 9)
+        	numTitle.setValue("US Patent #:");
+        else
+        	numTitle.setValue("US Patent Application#:");
+        
         numText.setValue(patentColumnNum);
 //      rspc.getContent().add(link);
         
