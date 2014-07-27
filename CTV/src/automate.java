@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBElement;
 
@@ -93,11 +94,32 @@ public class automate {
 		}
 		return result;
 	}
+	
+	
+		
+	private static boolean isNotGooglePatentLink(String input) {
+		if(input == null)
+			System.exit(0);
+		
+		if(input.startsWith("https://www.google.com/patents/"))
+			return false;
+		else 
+			return true;
+	}
 
 	public static void main(String[] args) throws IOException, Docx4JException {
 
 		// url = "https://www.google.com/patents/WO2012015801A1";
 		url = "https://www.google.com/patents/US20120202214";
+		
+		String googleLink;
+		do {
+			googleLink = JOptionPane.showInputDialog(null,
+					"Google patent link?", "Link",
+					JOptionPane.QUESTION_MESSAGE);
+		} while (isNotGooglePatentLink(googleLink));
+
+		url = googleLink;
 
 		Document doc = Jsoup.connect(url).userAgent("Mozilla").get();
 
@@ -122,9 +144,7 @@ public class automate {
 		Elements patnum = doc
 				.select("meta[name=citation_patent_publication_number]");
 		String patentNumber = patnum.get(0).attr("content"); //format: US:[patentnum]:A1
-		System.out.println(patentNumber);
 		patentNumber = patentNumber.split(":")[0] + patentNumber.split(":")[1];
-		System.out.println(patentNumber);
 
 		// Elements info = doc.select("table#viewport_table");
 
@@ -135,17 +155,17 @@ public class automate {
 
 		String fileName = null;
 
-		// JFileChooser fileChooser = new JFileChooser();
-		// FileNameExtensionFilter filter = new FileNameExtensionFilter(
-		// ".docx files", "docx");
-		// fileChooser.setFileFilter(filter);
-		// fileChooser.setCurrentDirectory(new File(System
-		// .getProperty("user.home")));
-		// int result = fileChooser.showOpenDialog(null);
-		// if (result == JFileChooser.APPROVE_OPTION) {
-		// File selectedFile = fileChooser.getSelectedFile();
-		// fileName = selectedFile.getAbsolutePath();
-		// }
+		JFileChooser fileChooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+				".docx files", "docx");
+		fileChooser.setFileFilter(filter);
+		fileChooser.setCurrentDirectory(new File(System
+				.getProperty("user.home")));
+		int result = fileChooser.showOpenDialog(null);
+		if (result == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileChooser.getSelectedFile();
+			fileName = selectedFile.getAbsolutePath();
+		}
 
 		fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";
 
