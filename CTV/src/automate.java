@@ -15,6 +15,7 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBElement;
 
+import org.apache.poi.hwpf.usermodel.Paragraph;
 import org.docx4j.jaxb.Context;
 import org.docx4j.model.structure.PageSizePaper;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
@@ -25,6 +26,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.openpackaging.parts.relationships.Namespaces;
+import org.docx4j.relationships.Relationship;
 import org.docx4j.XmlUtils;
 import org.docx4j.wml.ObjectFactory;
 import org.docx4j.wml.P;
@@ -143,62 +145,66 @@ public class automate {
 		description = description.split("&gt;")[1];
 		description = description.substring(0, description.length() - 6);
 
-		wordMLPackage = WordprocessingMLPackage.createPackage(
-				PageSizePaper.LETTER, true);
-		factory = Context.getWmlObjectFactory();
-
 		String fileName = null;
 
-		JFileChooser fileChooser = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter(
-				".docx files", "docx");
-		fileChooser.setFileFilter(filter);
-		fileChooser.setCurrentDirectory(new File(System
-				.getProperty("user.home")));
-		int result = fileChooser.showOpenDialog(null);
-		if (result == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = fileChooser.getSelectedFile();
-			fileName = selectedFile.getAbsolutePath();
-		}
+		// JFileChooser fileChooser = new JFileChooser();
+		// FileNameExtensionFilter filter = new FileNameExtensionFilter(
+		// ".docx files", "docx");
+		// fileChooser.setFileFilter(filter);
+		// fileChooser.setCurrentDirectory(new File(System
+		// .getProperty("user.home")));
+		// int result = fileChooser.showOpenDialog(null);
+		// if (result == JFileChooser.APPROVE_OPTION) {
+		// File selectedFile = fileChooser.getSelectedFile();
+		// fileName = selectedFile.getAbsolutePath();
+		// }
 
-		if (fileName != null) {
-			WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage
-					.load(new java.io.File(fileName));
+		fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";
 
-			MainDocumentPart mp = wordMLPackage.getMainDocumentPart();
-			Styles styles = mp.getStyleDefinitionsPart().getJaxbElement();
-			changeNormalFont(styles, factory, "Arial");
+		// if (fileName != null) {
+		wordMLPackage = WordprocessingMLPackage
+				.load(new java.io.File(fileName));
 
-			List<Object> tables = getAllElementFromObject(
-					wordMLPackage.getMainDocumentPart(), Tbl.class);
+		Hyperlink link = createHyperlink(wordMLPackage, url, patentColumnNum);
 
-			Tr tableRow = factory.createTr();
+		factory = Context.getWmlObjectFactory();
 
-			addFirstColumn(tableRow, patentColumnNum, patentColumnDate);
-			addSecondColumn(tableRow, wholePage.indexOf(strtInventors),
-					strtInventors.length(), wholePage.indexOf(strtApplicants),
-					strtApplicants.length());
+		MainDocumentPart mp = wordMLPackage.getMainDocumentPart();
+		Styles styles = mp.getStyleDefinitionsPart().getJaxbElement();
+		changeNormalFont(styles, factory, "Arial");
 
-			addColumn(tableRow, invName);
-			addColumn(tableRow, description);
+		List<Object> tables = getAllElementFromObject(
+				wordMLPackage.getMainDocumentPart(), Tbl.class);
 
-			Tbl Appendix2 = (Tbl) tables.get(1);
-			Appendix2.getContent().add(tableRow);
+		Tr tableRow = factory.createTr();
 
-			String newFileName = fileName.substring(0, fileName.length() - 5)
-					+ "_1.docx";
+		addFirstColumn(tableRow, patentColumnNum, patentColumnDate, link);
+		addSecondColumn(tableRow, wholePage.indexOf(strtInventors),
+				strtInventors.length(), wholePage.indexOf(strtApplicants),
+				strtApplicants.length());
 
-			wordMLPackage.save(new java.io.File(newFileName));
-		} else {
-			System.out.println("Could not find file.");
-			return;
-		}
+		addColumn(tableRow, invName);
+		addColumn(tableRow, description);
+
+		Tbl Appendix2 = (Tbl) tables.get(1);
+		Appendix2.getContent().add(tableRow);
+
+		String newFileName = fileName.substring(0, fileName.length() - 5)
+				+ "_1.docx";
+
+		wordMLPackage.save(new java.io.File(newFileName));
+		// } else {
+		// System.out.println("Could not find file.");
+		// return;
+		// }
 
 	}
 
 	private static void changeNormalFont(Styles styles, ObjectFactory factory,
 			String string) {
 		for (Style s : styles.getStyle()) {
+			// System.out.println(s.getStyleId());
+			// System.out.println(s.getName());
 			if (s.getName().getVal().equals("Normal")) {
 				RPr rpr = s.getRPr();
 				if (rpr == null) {
@@ -216,57 +222,15 @@ public class automate {
 				rf.setAscii(string);
 			}
 		}
-	}
 
-	private static void addFirstColumn(Tr tableRow, String patentColumnNum,
-			String patentColumnDate) {
-		Tc tableCell = factory.createTc();
-
-		Hyperlink link = createHyperlink(wordMLPackage, patentColumnNum, url);
-
-		P spc = factory.createP();
-		R rspc = factory.createR();
-
-		Text numTitle = factory.createText();
-		Text numText = factory.createText();
-
-		Text dateTitle = factory.createText();
-		Text dateText = factory.createText();
-		Br br = factory.createBr();
-
-		if (patentColumnNum.length() == 9)
-			numTitle.setValue("US Patent #:");
-		else
-			numTitle.setValue("US Patent Application#:");
-
-		numText.setValue(patentColumnNum);
-		// rspc.getContent().add(link);
-
-		dateTitle.setValue("Filing date: ");
-		dateText.setValue(patentColumnDate);
-
-		rspc.getContent().add(numTitle);
-		rspc.getContent().add(br);
-		rspc.getContent().add(numText);
-
-		rspc.getContent().add(br);
-		rspc.getContent().add(br);
-
-		rspc.getContent().add(dateTitle);
-		rspc.getContent().add(br);
-		rspc.getContent().add(dateText);
-
-		// rspc.getContent().add(link);
-
-		spc.getContent().add(rspc);
-		tableCell.getContent().add(spc);
-
-		tableRow.getContent().add(tableCell);
 	}
 
 	public static Hyperlink createHyperlink(
-			WordprocessingMLPackage wordMLPackage, String linkText, String url) {
+			WordprocessingMLPackage wordMLPackage, String url,
+			String patentColumnNum) {
+
 		try {
+
 			// We need to add a relationship to word/_rels/document.xml.rels
 			// but since its external, we don't use the
 			// usual wordMLPackage.getMainDocumentPart().addTargetPart
@@ -290,18 +254,62 @@ public class automate {
 					+ "xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" >"
 					+ "<w:r>" + "<w:rPr>" + "<w:rStyle w:val=\"Hyperlink\" />"
 					+ // TODO: enable this style in the document!
-					"</w:rPr>" + "<w:t>" + linkText + "</w:t>" + "</w:r>"
+					"</w:rPr>" + "<w:t>" 
+					+ patentColumnNum + "</w:t>" + "</w:r>"
 					+ "</w:hyperlink>";
 
-			// return (Hyperlink)XmlUtils.unmarshalString(hpl, Context.jc,
-			// P.Hyperlink.class);
-			return (Hyperlink) XmlUtils.unmarshalString(hpl);
+			return (Hyperlink) XmlUtils.unmarshalString(hpl, Context.jc,
+					P.Hyperlink.class);
+			// return (Hyperlink)XmlUtils.unmarshalString(hpl);
 
 		} catch (Exception e) {
-
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	private static void addFirstColumn(Tr tableRow, String patentColumnNum,
+			String patentColumnDate, Hyperlink link) {
+		Tc tableCell = factory.createTc();
+
+		P spc = factory.createP();
+		R rspcTop = factory.createR();
+		R rspcBot = factory.createR();
+
+		Text numTitle = factory.createText();
+		Text numText = factory.createText();
+
+		Text dateTitle = factory.createText();
+		Text dateText = factory.createText();
+		Br br = factory.createBr();
+
+		if (patentColumnNum.length() == 9)
+			numTitle.setValue("US Patent #:");
+		else
+			numTitle.setValue("US Patent Application #:");
+
+		numText.setValue(patentColumnNum);
+
+		dateTitle.setValue("Filing date: ");
+		dateText.setValue(patentColumnDate);
+
+		rspcTop.getContent().add(numTitle);
+		rspcTop.getContent().add(br);
+		// rspcTop.getContent().add(numText);
+
+		rspcBot.getContent().add(br);
+		rspcBot.getContent().add(br);
+
+		rspcBot.getContent().add(dateTitle);
+		rspcBot.getContent().add(br);
+		rspcBot.getContent().add(dateText);
+
+		spc.getContent().add(rspcTop);
+		spc.getContent().add(link);
+		spc.getContent().add(rspcBot);
+		tableCell.getContent().add(spc);
+
+		tableRow.getContent().add(tableCell);
 	}
 
 	private static void addSecondColumn(Tr tableRow, int invStart, int invSkip,
