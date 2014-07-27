@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JFileChooser;
@@ -24,6 +25,7 @@ import org.docx4j.wml.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.openpackaging.parts.relationships.Namespaces;
 import org.docx4j.relationships.Relationship;
@@ -32,18 +34,16 @@ import org.docx4j.wml.ObjectFactory;
 import org.docx4j.wml.P;
 import org.docx4j.wml.P.Hyperlink;
 
+import antlr.collections.impl.Vector;
+
 public class automate {
-
-	private static final String strtAppDate = "<td><span class=\"ncDetailLabel\">Application Date: </span></td> \n               <td>";
-	private static final String strtInventors = "<td class=\"ncDetailLabel\">Inventors: </td> \n               <td class=\"ncDetailText\"><span class=\"notranslate\">";
-	private static final String strtApplicants = "<td class=\"ncDetailLabel\">Applicants: </td> \n               <td class=\"ncDetailText\"><span class=\"notranslate\">";
-
-	private static String wholePage;
 
 	private static WordprocessingMLPackage wordMLPackage;
 	private static ObjectFactory factory;
 
 	private static String url;
+
+	private static Vector invNames, assignNames;
 
 	public static String getMonth(String month) {
 
@@ -96,54 +96,42 @@ public class automate {
 
 	public static void main(String[] args) throws IOException, Docx4JException {
 
-		// url =
-		// "http://patentscope.wipo.int/search/en/detail.jsf?docId=WO2012136993";
-		url = "http://patentscope.wipo.int/search/en/detail.jsf?docId=US74058396";
-		// url =
-		// "http://patentscope.wipo.int/search/en/detail.jsf?docId=EP96220449";
-		// url =
-		// "http://patentscope.wipo.int/search/en/detail.jsf?docId=US76429465";
-		// url =
-		// "http://patentscope.wipo.int/search/en/detail.jsf?docId=US73463068";
+		// url = "https://www.google.com/patents/WO2012015801A1";
+		url = "https://www.google.com/patents/US20120202214";
 
 		Document doc = Jsoup.connect(url).userAgent("Mozilla").get();
 
-		wholePage = doc.toString();
+		Elements titleElement = doc.select("meta[name=DC.title]");
+		String invName = titleElement.get(0).attr("content");
 
-		String title = doc.title();
-		String patNum = title.substring(0, title.indexOf(' '));
-		String invName = title.substring(title.indexOf(' ') + 1);
+		Elements nameElement = doc.select("meta[name=DC.contributor]");
 
-		if (patNum.charAt(0) == '0')
-			patNum = patNum.substring(1);
+		invNames = new Vector();
+		assignNames = new Vector();
 
-		String patentColumnNum = "US" + patNum;
+		for (Element element : nameElement) {
+			if (element.attr("scheme").equalsIgnoreCase("inventor"))
+				invNames.appendElement(element.attr("content"));
+			else
+				assignNames.appendElement(element.attr("content"));
+		}
 
-		int start = wholePage.indexOf(strtAppDate);
-		int skip = strtAppDate.length();
+		Elements descriptions = doc.select("meta[name=DC.description]");
+		String description = descriptions.get(0).attr("content");
 
-		String appDate = wholePage
-				.substring(start + skip, start + skip + 1 + 9);
+		Elements patnum = doc
+				.select("meta[name=citation_patent_publication_number]");
+		String patentNumber = patnum.get(0).attr("content"); //format: US:[patentnum]:A1
+		System.out.println(patentNumber);
+		patentNumber = patentNumber.split(":")[0] + patentNumber.split(":")[1];
+		System.out.println(patentNumber);
 
-		String day = appDate.split("\\.")[0];
-		String month = appDate.split("\\.")[1];
-		String year = appDate.split("\\.")[2];
+		// Elements info = doc.select("table#viewport_table");
 
-		String patentColumnDate = getMonth(month) + " " + day + ", " + year
-				+ "\n";
+		Elements row = doc.select(".single-patent-bibdata");
+		String filingDate = row.get(4).text();
 
-		start = wholePage.indexOf(strtInventors);
-		skip = strtInventors.length();
-
-		start = wholePage.indexOf(strtApplicants);
-		skip = strtApplicants.length();
-
-		Element descriptionElement = doc.select("meta[name=description]")
-				.get(1);
-		String description = descriptionElement.getAllElements().toString();
-
-		description = description.split("&gt;")[1];
-		description = description.substring(0, description.length() - 6);
+		// System.out.println("Filing date: " + row.get(4).text());
 
 		String fileName = null;
 
@@ -165,7 +153,7 @@ public class automate {
 		wordMLPackage = WordprocessingMLPackage
 				.load(new java.io.File(fileName));
 
-		Hyperlink link = createHyperlink(wordMLPackage, url, patentColumnNum);
+		Hyperlink link = createHyperlink(wordMLPackage, url, patentNumber);
 
 		factory = Context.getWmlObjectFactory();
 
@@ -178,10 +166,8 @@ public class automate {
 
 		Tr tableRow = factory.createTr();
 
-		addFirstColumn(tableRow, patentColumnNum, patentColumnDate, link);
-		addSecondColumn(tableRow, wholePage.indexOf(strtInventors),
-				strtInventors.length(), wholePage.indexOf(strtApplicants),
-				strtApplicants.length());
+		addFirstColumn(tableRow, patentNumber, filingDate, link);
+		addSecondColumn(tableRow);
 
 		addColumn(tableRow, invName);
 		addColumn(tableRow, description);
@@ -252,11 +238,9 @@ public class automate {
 					+ rel.getId()
 					+ "\" xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\" "
 					+ "xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" >"
-					+ "<w:r>" + "<w:rPr>" + "<w:rStyle w:val=\"Hyperlink\" />"
-					+ // TODO: enable this style in the document!
-					"</w:rPr>" + "<w:t>" 
-					+ patentColumnNum + "</w:t>" + "</w:r>"
-					+ "</w:hyperlink>";
+					+ "<w:r>" + "<w:rPr>" + "<w:rStyle w:val=\"Hyperlink\" />" 
+					+ "</w:rPr>" + "<w:t>" + patentColumnNum + "</w:t>"
+					+ "</w:r>" + "</w:hyperlink>";
 
 			return (Hyperlink) XmlUtils.unmarshalString(hpl, Context.jc,
 					P.Hyperlink.class);
@@ -312,8 +296,7 @@ public class automate {
 		tableRow.getContent().add(tableCell);
 	}
 
-	private static void addSecondColumn(Tr tableRow, int invStart, int invSkip,
-			int appStart, int appSkip) {
+	private static void addSecondColumn(Tr tableRow) {
 		Tc tableCell = factory.createTc();
 
 		P spc = factory.createP();
@@ -327,14 +310,11 @@ public class automate {
 		rspc.getContent().add(invTitle);
 		rspc.getContent().add(br);
 
-		String names = wholePage.substring(invStart + invSkip, invStart + 200);
-		String[] nameArray = names.split("<br />");
-
 		Text nextName = factory.createText();
 
-		for (int i = 0; i < nameArray.length - 1; i++) {
+		for (int i = 0; i < invNames.size(); i++) {
 			nextName = factory.createText();
-			nextName.setValue(nameArray[i]);
+			nextName.setValue((String) invNames.elementAt(i));
 			rspc.getContent().add(nextName);
 			rspc.getContent().add(br);
 		}
@@ -347,15 +327,12 @@ public class automate {
 		rspc.getContent().add(appTitleText);
 		rspc.getContent().add(br);
 
-		names = wholePage.substring(appStart + appSkip, appStart + 200);
-		nameArray = names.split("<br />");
-
-		for (int i = 0; i < nameArray.length - 1; i++) {
+		for (int i = 0; i < assignNames.size(); i++) {
 			nextName = factory.createText();
-			nextName.setValue(nameArray[i]);
+			nextName.setValue((String) assignNames.elementAt(i));
 			rspc.getContent().add(nextName);
 
-			if (i != nameArray.length - 2)
+			if (i != assignNames.size() - 1)
 				rspc.getContent().add(br);
 		}
 
