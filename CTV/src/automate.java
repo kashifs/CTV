@@ -7,15 +7,18 @@
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.CellEditor;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 
 import org.apache.poi.hwpf.usermodel.Paragraph;
 import org.docx4j.jaxb.Context;
@@ -27,6 +30,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.plutext.jaxb.xslfo.SpeakHeaderType;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.openpackaging.parts.relationships.Namespaces;
 import org.docx4j.relationships.Relationship;
@@ -34,6 +38,7 @@ import org.docx4j.XmlUtils;
 import org.docx4j.wml.ObjectFactory;
 import org.docx4j.wml.P;
 import org.docx4j.wml.P.Hyperlink;
+import org.docx4j.wml.Tc;
 
 import antlr.collections.impl.Vector;
 
@@ -45,8 +50,6 @@ public class automate {
 	private static String url;
 	private static Vector invNames, assignNames;
 	private static boolean isGranted;
-
-
 
 	private static List<Object> getAllElementFromObject(Object obj,
 			Class<?> toSearch) {
@@ -77,11 +80,10 @@ public class automate {
 
 	public static void main(String[] args) throws IOException, Docx4JException {
 
-		 url = "https://www.google.com/patents/US20120015839";
-//		 url = "https://www.google.com/patents/US20120202214";
-//		url = "https://www.google.com/patents/US8352194";
-		 
-		
+		url = "https://www.google.com/patents/US20120015839";
+		// url = "https://www.google.com/patents/US20120202214";
+		// url = "https://www.google.com/patents/US8352194";
+
 		// String googleLink;
 		// do {
 		// googleLink = JOptionPane.showInputDialog(null,
@@ -107,51 +109,20 @@ public class automate {
 			else
 				assignNames.appendElement(element.attr("content"));
 		}
-		
-		
 
 		Elements descriptions = doc.select("meta[name=DC.description]");
 		String description = descriptions.get(0).attr("content");
-
-//		Elements patnum = doc
-//				.select("meta[name=citation_patent_publication_number]");
-		// String patentNumber = patnum.get(0).attr("content"); //format:
-		// US:[patentnum]:A1
-		// patentNumber = patentNumber.split(":")[0] +
-		// patentNumber.split(":")[1];
-
-
-//		Elements info = doc.select("table#viewport_table");
-		
-//		System.out.println(info.text());
-//		System.out.println(info);
-//		System.exit(1);
-
 		Elements row = doc.select(".single-patent-bibdata");
-		
-		
-//		for(Element element : row){
-//			System.out.println(element.text());
-//		}
-		
+
 		String patentNumber = row.get(0).text().split(" ")[0];
 		String filingDate = row.get(4).text();
 
-		
-		
 		isGranted = false;
-		
-//		System.out.println();
-		
 		if (row.get(1).text().equalsIgnoreCase("grant"))
 			isGranted = true;
-		
-		
-//		System.exit(1);
 
-		// System.out.println("Filing date: " + row.get(4).text());
-
-		String fileName = null;
+		// String fileName = null;
+		String fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";
 
 		// JFileChooser fileChooser = new JFileChooser();
 		// FileNameExtensionFilter filter = new FileNameExtensionFilter(
@@ -164,8 +135,6 @@ public class automate {
 		// File selectedFile = fileChooser.getSelectedFile();
 		// fileName = selectedFile.getAbsolutePath();
 		// }
-
-		fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";
 
 		// if (fileName != null) {
 		wordMLPackage = WordprocessingMLPackage
@@ -192,6 +161,43 @@ public class automate {
 
 		Tbl Appendix2 = (Tbl) tables.get(1);
 		Appendix2.getContent().add(tableRow);
+
+		Tbl mainTable = (Tbl) tables.get(0);
+
+		List rows = mainTable.getContent();
+		Tr firstRow = (Tr) rows.get(0);
+		List cells = firstRow.getContent();
+
+		System.out.println(cells.size());
+		System.out.println("Class: " + cells.get(1).getClass());
+		Tc tc = (Tc) XmlUtils.unwrap(cells.get(1));
+
+		// System.out.println(tc.toString());
+		System.out.println("Content: " + tc.getContent().toString());
+		tc.getContent().remove(0);
+
+		P spc = factory.createP();
+		R rspcTop = factory.createR();
+		
+
+		Text IRnum = factory.createText();
+		IRnum.setValue("1234124haiusdf");
+		rspcTop.getContent().add(IRnum);
+		spc.getContent().add(rspcTop);
+
+		tc.getContent().add(spc);
+
+
+		
+		
+
+		// System.exit(0);
+
+		// P spc = factory.createP();
+
+		// tc.getContent().add(
+		// wordMLPackage.getMainDocumentPart().createParagraphOfText(
+		// "some text that goes in the cell"));
 
 		String newFileName = fileName.substring(0, fileName.length() - 5)
 				+ "_1.docx";
@@ -300,7 +306,7 @@ public class automate {
 		// rspcTop.getContent().add(numText);
 
 		rspcBot.getContent().add(br);
-//		rspcBot.getContent().add(br);
+		// rspcBot.getContent().add(br);
 
 		rspcBot.getContent().add(dateTitle);
 		rspcBot.getContent().add(br);
