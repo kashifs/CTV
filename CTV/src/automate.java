@@ -43,40 +43,10 @@ public class automate {
 	private static ObjectFactory factory;
 
 	private static String url;
-
 	private static Vector invNames, assignNames;
+	private static boolean isGranted;
 
-	public static String getMonth(String month) {
 
-		if (month.equals("01")) {
-			return "Jan";
-		} else if (month.equals("02")) {
-			return "Feb";
-		} else if (month.equals("03")) {
-			return "Mar";
-		} else if (month.equals("04")) {
-			return "Apr";
-		} else if (month.equals("05")) {
-			return "May";
-		} else if (month.equals("06")) {
-			return "Jun";
-		} else if (month.equals("07")) {
-			return "Jul";
-		} else if (month.equals("08")) {
-			return "Aug";
-		} else if (month.equals("09")) {
-			return "Sep";
-		} else if (month.equals("10")) {
-			return "Oct";
-		} else if (month.equals("11")) {
-			return "Nov";
-		} else if (month.equals("12")) {
-			return "Dec";
-		} else {
-			return "XXXXXXXXXXXXX";
-		}
-
-	}
 
 	private static List<Object> getAllElementFromObject(Object obj,
 			Class<?> toSearch) {
@@ -94,32 +64,32 @@ public class automate {
 		}
 		return result;
 	}
-	
-	
-		
+
 	private static boolean isNotGooglePatentLink(String input) {
-		if(input == null)
+		if (input == null)
 			System.exit(0);
-		
-		if(input.startsWith("https://www.google.com/patents/"))
+
+		if (input.startsWith("https://www.google.com/patents/"))
 			return false;
-		else 
+		else
 			return true;
 	}
 
 	public static void main(String[] args) throws IOException, Docx4JException {
 
-		// url = "https://www.google.com/patents/WO2012015801A1";
-		url = "https://www.google.com/patents/US20120202214";
+		 url = "https://www.google.com/patents/US20120015839";
+//		 url = "https://www.google.com/patents/US20120202214";
+//		url = "https://www.google.com/patents/US8352194";
+		 
 		
-		String googleLink;
-		do {
-			googleLink = JOptionPane.showInputDialog(null,
-					"Google patent link?", "Link",
-					JOptionPane.QUESTION_MESSAGE);
-		} while (isNotGooglePatentLink(googleLink));
-
-		url = googleLink;
+		// String googleLink;
+		// do {
+		// googleLink = JOptionPane.showInputDialog(null,
+		// "Google patent link?", "Link",
+		// JOptionPane.QUESTION_MESSAGE);
+		// } while (isNotGooglePatentLink(googleLink));
+		//
+		// url = googleLink;
 
 		Document doc = Jsoup.connect(url).userAgent("Mozilla").get();
 
@@ -137,35 +107,63 @@ public class automate {
 			else
 				assignNames.appendElement(element.attr("content"));
 		}
+		
+		
 
 		Elements descriptions = doc.select("meta[name=DC.description]");
 		String description = descriptions.get(0).attr("content");
 
-		Elements patnum = doc
-				.select("meta[name=citation_patent_publication_number]");
-		String patentNumber = patnum.get(0).attr("content"); //format: US:[patentnum]:A1
-		patentNumber = patentNumber.split(":")[0] + patentNumber.split(":")[1];
+//		Elements patnum = doc
+//				.select("meta[name=citation_patent_publication_number]");
+		// String patentNumber = patnum.get(0).attr("content"); //format:
+		// US:[patentnum]:A1
+		// patentNumber = patentNumber.split(":")[0] +
+		// patentNumber.split(":")[1];
 
-		// Elements info = doc.select("table#viewport_table");
+
+//		Elements info = doc.select("table#viewport_table");
+		
+//		System.out.println(info.text());
+//		System.out.println(info);
+//		System.exit(1);
 
 		Elements row = doc.select(".single-patent-bibdata");
+		
+		
+//		for(Element element : row){
+//			System.out.println(element.text());
+//		}
+		
+		String patentNumber = row.get(0).text().split(" ")[0];
 		String filingDate = row.get(4).text();
+
+		
+		
+		isGranted = false;
+		
+//		System.out.println();
+		
+		if (row.get(1).text().equalsIgnoreCase("grant"))
+			isGranted = true;
+		
+		
+//		System.exit(1);
 
 		// System.out.println("Filing date: " + row.get(4).text());
 
 		String fileName = null;
 
-		JFileChooser fileChooser = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter(
-				".docx files", "docx");
-		fileChooser.setFileFilter(filter);
-		fileChooser.setCurrentDirectory(new File(System
-				.getProperty("user.home")));
-		int result = fileChooser.showOpenDialog(null);
-		if (result == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = fileChooser.getSelectedFile();
-			fileName = selectedFile.getAbsolutePath();
-		}
+		// JFileChooser fileChooser = new JFileChooser();
+		// FileNameExtensionFilter filter = new FileNameExtensionFilter(
+		// ".docx files", "docx");
+		// fileChooser.setFileFilter(filter);
+		// fileChooser.setCurrentDirectory(new File(System
+		// .getProperty("user.home")));
+		// int result = fileChooser.showOpenDialog(null);
+		// if (result == JFileChooser.APPROVE_OPTION) {
+		// File selectedFile = fileChooser.getSelectedFile();
+		// fileName = selectedFile.getAbsolutePath();
+		// }
 
 		fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";
 
@@ -258,7 +256,7 @@ public class automate {
 					+ rel.getId()
 					+ "\" xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\" "
 					+ "xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" >"
-					+ "<w:r>" + "<w:rPr>" + "<w:rStyle w:val=\"Hyperlink\" />" 
+					+ "<w:r>" + "<w:rPr>" + "<w:rStyle w:val=\"Hyperlink\" />"
 					+ "</w:rPr>" + "<w:t>" + patentColumnNum + "</w:t>"
 					+ "</w:r>" + "</w:hyperlink>";
 
@@ -287,7 +285,7 @@ public class automate {
 		Text dateText = factory.createText();
 		Br br = factory.createBr();
 
-		if (patentColumnNum.length() == 9)
+		if (isGranted)
 			numTitle.setValue("US Patent #:");
 		else
 			numTitle.setValue("US Patent Application #:");
@@ -302,7 +300,7 @@ public class automate {
 		// rspcTop.getContent().add(numText);
 
 		rspcBot.getContent().add(br);
-		rspcBot.getContent().add(br);
+//		rspcBot.getContent().add(br);
 
 		rspcBot.getContent().add(dateTitle);
 		rspcBot.getContent().add(br);
