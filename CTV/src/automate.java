@@ -48,8 +48,14 @@ public class automate {
 	private static ObjectFactory factory;
 
 	private static String url;
+	private static String fileName;
 	private static Vector invNames, assignNames;
 	private static boolean isGranted;
+	
+	private static Tbl Appendix2, mainTable;
+	
+	private static String patentNumber, filingDate, invName, description;
+	
 
 	private static List<Object> getAllElementFromObject(Object obj,
 			Class<?> toSearch) {
@@ -77,26 +83,59 @@ public class automate {
 		else
 			return true;
 	}
+	
+	private static void populateMainTable(){
+		
+	}
+	
+	private static void populateAppendixII(){
+		
+	}
+	
+	private static void getUserLink(){
+		String googleLink;
+		do {
+			googleLink = JOptionPane
+					.showInputDialog(null, "Google patent link?", "Link",
+							JOptionPane.QUESTION_MESSAGE);
+		} while (isNotGooglePatentLink(googleLink));
 
-	public static void main(String[] args) throws IOException, Docx4JException {
-
-		url = "https://www.google.com/patents/US20120015839";
-		// url = "https://www.google.com/patents/US20120202214";
-		// url = "https://www.google.com/patents/US8352194";
-
-		// String googleLink;
-		// do {
-		// googleLink = JOptionPane.showInputDialog(null,
-		// "Google patent link?", "Link",
-		// JOptionPane.QUESTION_MESSAGE);
-		// } while (isNotGooglePatentLink(googleLink));
-		//
-		// url = googleLink;
-
+		url = googleLink;
+		
+	}
+	
+	private static void getIRDocument() throws Docx4JException{
+		fileName = null;
+		
+		JFileChooser fileChooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+				".docx files", "docx");
+		fileChooser.setFileFilter(filter);
+		fileChooser.setCurrentDirectory(new File(System
+				.getProperty("user.home")));
+		int result = fileChooser.showOpenDialog(null);
+		if (result == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileChooser.getSelectedFile();
+			fileName = selectedFile.getAbsolutePath();
+		}
+		
+		if (fileName == null){
+			System.err.println("Could not open file.");
+			System.exit(1);
+		}
+		
+		//TODO add this line back in production
+//		wordMLPackage = WordprocessingMLPackage
+//				.load(new java.io.File(fileName));
+		
+	}
+	
+	private static void fetchPatentData() throws IOException{
+		
 		Document doc = Jsoup.connect(url).userAgent("Mozilla").get();
 
 		Elements titleElement = doc.select("meta[name=DC.title]");
-		String invName = titleElement.get(0).attr("content");
+		invName = titleElement.get(0).attr("content");
 
 		Elements nameElement = doc.select("meta[name=DC.contributor]");
 
@@ -111,42 +150,53 @@ public class automate {
 		}
 
 		Elements descriptions = doc.select("meta[name=DC.description]");
-		String description = descriptions.get(0).attr("content");
+		description = descriptions.get(0).attr("content");
 		Elements row = doc.select(".single-patent-bibdata");
 
-		String patentNumber = row.get(0).text().split(" ")[0];
-		String filingDate = row.get(4).text();
+		patentNumber = row.get(0).text().split(" ")[0];
+		filingDate = row.get(4).text();
 
 		isGranted = false;
 		if (row.get(1).text().equalsIgnoreCase("grant"))
 			isGranted = true;
+		
+	}
 
-		// String fileName = null;
-		String fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";
+	public static void main(String[] args) throws IOException, Docx4JException {
 
-		// JFileChooser fileChooser = new JFileChooser();
-		// FileNameExtensionFilter filter = new FileNameExtensionFilter(
-		// ".docx files", "docx");
-		// fileChooser.setFileFilter(filter);
-		// fileChooser.setCurrentDirectory(new File(System
-		// .getProperty("user.home")));
-		// int result = fileChooser.showOpenDialog(null);
-		// if (result == JFileChooser.APPROVE_OPTION) {
-		// File selectedFile = fileChooser.getSelectedFile();
-		// fileName = selectedFile.getAbsolutePath();
-		// }
+		url = "https://www.google.com/patents/US20120015839";
+		// url = "https://www.google.com/patents/US20120202214";
+		// url = "https://www.google.com/patents/US8352194";
 
-		// if (fileName != null) {
+		
+//		getUserLink();
+		fetchPatentData();
+		
+//		getIRDocument();
+		
+
+
+
+		fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";
+
 		wordMLPackage = WordprocessingMLPackage
 				.load(new java.io.File(fileName));
-
-		Hyperlink link = createHyperlink(wordMLPackage, url, patentNumber);
 
 		factory = Context.getWmlObjectFactory();
 
 		MainDocumentPart mp = wordMLPackage.getMainDocumentPart();
+		
 		Styles styles = mp.getStyleDefinitionsPart().getJaxbElement();
 		changeNormalFont(styles, factory, "Arial");
+		
+		populateMainTable();
+		
+		populateAppendixII();
+
+		Hyperlink link = createHyperlink(wordMLPackage, url, patentNumber);
+
+
+		
 
 		List<Object> tables = getAllElementFromObject(
 				wordMLPackage.getMainDocumentPart(), Tbl.class);
@@ -159,10 +209,10 @@ public class automate {
 		addColumn(tableRow, invName);
 		addColumn(tableRow, description);
 
-		Tbl Appendix2 = (Tbl) tables.get(1);
+		Appendix2 = (Tbl) tables.get(1);
 		Appendix2.getContent().add(tableRow);
 
-		Tbl mainTable = (Tbl) tables.get(0);
+		mainTable = (Tbl) tables.get(0);
 
 		List rows = mainTable.getContent();
 		Tr firstRow = (Tr) rows.get(0);
@@ -189,24 +239,13 @@ public class automate {
 
 
 		
-		
-
-		// System.exit(0);
-
-		// P spc = factory.createP();
-
-		// tc.getContent().add(
-		// wordMLPackage.getMainDocumentPart().createParagraphOfText(
-		// "some text that goes in the cell"));
+	
 
 		String newFileName = fileName.substring(0, fileName.length() - 5)
 				+ "_1.docx";
 
 		wordMLPackage.save(new java.io.File(newFileName));
-		// } else {
-		// System.out.println("Could not find file.");
-		// return;
-		// }
+		
 
 	}
 
