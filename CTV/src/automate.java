@@ -14,6 +14,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.CellEditor;
 import javax.swing.DefaultComboBoxModel;
@@ -22,6 +24,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -439,24 +442,34 @@ public class automate {
 		// String tloInitials = promptTLOInitials();
 		// System.out.println("TLO Initials: " + tloInitials);
 
-		String ogcInitials = null;
+		// String ogcInitials = null;
+		// SelectOGC ogc = null;
+		// try {
+		// ogc = new SelectOGC();
+		// ogcInitials = ogc.getInitials();
+		// } catch (InterruptedException e) {
+		// e.printStackTrace();
+		// } catch (InvocationTargetException e) {
+		// e.printStackTrace();
+		// }
+		// System.out.println("OGC initials: " + ogcInitials);
 
-		SelectOGC ogc = null;
-		try {
-			ogc = new SelectOGC();
-			ogcInitials = ogc.getInitials();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		}
+		// SwingUtilities.invokeLater(new Runnable() {
 
+		ExecutorService service = Executors.newFixedThreadPool(1);
+
+		service.execute(new Runnable() {
+
+			@Override
+			public void run() {
+				new LifeScienceDiseases().setVisible(true);
+			}
+		});
 		
-		System.out.println("OGC initials: " + ogcInitials);
 		
-		
-		
-		
+
+
+
 		// getIRDocument();
 
 		fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";

@@ -5,6 +5,8 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -13,12 +15,11 @@ import javax.swing.SwingUtilities;
 
 
 /**
- * A Swing program that demonstrates how to use JCheckBox component.
  * 
- * @author www.codejava.net
+ * @author modified from code found at: www.codejava.net
  *
  */
-public class SwingJCheckBoxDemo extends JFrame {
+public class LifeScienceDiseases extends JFrame {
 
 
 	private static HashMap<String, String>  keywords;
@@ -53,7 +54,7 @@ public class SwingJCheckBoxDemo extends JFrame {
 
 	private int sum = 0; // sum of 3 numbers
 
-	public SwingJCheckBoxDemo() {
+	public LifeScienceDiseases() {
 		super("Life Science: Diseases");
 		// setLayout(new FlowLayout());
 		setLayout(new GridLayout(5, 5));
@@ -85,11 +86,8 @@ public class SwingJCheckBoxDemo extends JFrame {
 		add(spinal_injury);
 		add(stroke);
 		
-		JFrame frame = new JFrame("work");
 		JButton button = new JButton("Continue");
-//	    Container contentPane = frame.getContentPane();
-//	    contentPane.add(this, BorderLayout.CENTER);
-	    add(button, BorderLayout.SOUTH);
+	    add(button, BorderLayout.AFTER_LAST_LINE);
 	
 
 	    ActionListener buttonListener = new ContinueHandler();
@@ -127,6 +125,15 @@ public class SwingJCheckBoxDemo extends JFrame {
 		pack();
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		super.dispose();
+	}
+	
+	public void CloseFrame(){
+	    super.dispose();
+	}
+	
+	public static HashMap<String, String> getKeywords(){
+		return keywords;
 	}
 
 	class ActionHandler implements ActionListener {
@@ -148,6 +155,15 @@ public class SwingJCheckBoxDemo extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			System.out.println("button pressed!");
+			CloseFrame();
+			ExecutorService service = Executors.newFixedThreadPool(1);
+			service.execute(new Runnable() {
+
+				@Override
+				public void run() {
+					new Agriculture().setVisible(true);
+				}
+			});
 		}
 	}
 
@@ -155,7 +171,7 @@ public class SwingJCheckBoxDemo extends JFrame {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				new SwingJCheckBoxDemo().setVisible(true);
+				new LifeScienceDiseases().setVisible(true);
 			}
 		});
 	}
