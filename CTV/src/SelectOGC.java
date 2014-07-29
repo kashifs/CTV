@@ -13,60 +13,31 @@ import javax.swing.*;
  *   images/Pig.gif
  */
 public class SelectOGC {
-	
+
 	private static String ogcInitials;
-	public SelectOGC() throws InterruptedException, InvocationTargetException {
-//		EventQueue.invokeLater(new Runnable() {
-		EventQueue.invokeAndWait(new Runnable() {
-			@Override
-			public void run() {
 
-				try {
-					UIManager.setLookAndFeel(UIManager
-							.getSystemLookAndFeelClassName());
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InstantiationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (UnsupportedLookAndFeelException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+	public SelectOGC() {
 
-				JPanel panel = new JPanel();
-				panel.add(new JLabel("What type of technology is it?"));
-				DefaultComboBoxModel model = new DefaultComboBoxModel();
-				model.addElement("physical sciences or medical devices"); //JS
-				model.addElement("life sciences"); //GM/TB
-				JComboBox comboBox = new JComboBox(model);
-				panel.add(comboBox);
+		String[] choices = { "physical sciences or medical devices",
+				"life sciences" };
+		String input = (String) JOptionPane.showInputDialog(null,
+				"What type of technology is it?", "Office of General Council",
+				JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
 
-				int result = JOptionPane.showConfirmDialog(null, panel,
-						"Office of General Council", JOptionPane.OK_CANCEL_OPTION,
-						JOptionPane.QUESTION_MESSAGE);
-				switch (result) {
-				case JOptionPane.OK_OPTION:
-					System.out.println("You selected "
-							+ comboBox.getSelectedItem());
-					if(comboBox.getSelectedItem().toString().equals("life sciences"))
-						ogcInitials = "GM/TB";
-					else {
-						ogcInitials = "JS";
-					}
-					break;
-				}
+		if (input.equals("life sciences"))
+			ogcInitials = "GM/TB";
+		else {
+			ogcInitials = "JS";
+		}
 
-			}
-		});
 	}
-	
-	public String getInitials(){
+
+	public String getInitials() {
 		return ogcInitials;
 	}
-	
+
+	public static void main(String[] args){
+		new SelectOGC();
+		
+	}
 }

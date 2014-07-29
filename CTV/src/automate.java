@@ -67,7 +67,7 @@ public class automate {
 	private static Tbl appendixII, mainTable;
 
 	private static String patentNumber, filingDate, invName, description;
-	
+
 	private static JCheckBox aids = new JCheckBox("AIDS");
 	private static JCheckBox allergy = new JCheckBox("Allergy");
 	private static JCheckBox alzheimer = new JCheckBox("Alzheimer");
@@ -81,13 +81,16 @@ public class automate {
 	private static JCheckBox epilepsy = new JCheckBox("Epilepsy");
 	private static JCheckBox hiv = new JCheckBox("HIV");
 	private static JCheckBox hypertension = new JCheckBox("Hypertension");
-	private static JCheckBox infectious_disease = new JCheckBox("Infectious disease");
+	private static JCheckBox infectious_disease = new JCheckBox(
+			"Infectious disease");
 	private static JCheckBox inflammatory_disease = new JCheckBox(
 			"Inflammatory Disease");
 	private static JCheckBox ischemia = new JCheckBox("Ischemia");
-	private static JCheckBox multiple_sclerosis = new JCheckBox("Multiple Sclerosis");
+	private static JCheckBox multiple_sclerosis = new JCheckBox(
+			"Multiple Sclerosis");
 	private static JCheckBox obesity = new JCheckBox("Obesity");
-	private static JCheckBox metabolic_disorders = new JCheckBox("Metabolic Disorders");
+	private static JCheckBox metabolic_disorders = new JCheckBox(
+			"Metabolic Disorders");
 	private static JCheckBox parkinson = new JCheckBox("Parkinson");
 	private static JCheckBox respiratory = new JCheckBox("Allergy");
 	private static JCheckBox schizophrenia = new JCheckBox("Respiratory");
@@ -470,20 +473,11 @@ public class automate {
 		// String tloInitials = promptTLOInitials();
 		// System.out.println("TLO Initials: " + tloInitials);
 		//
-		// String ogcInitials = null;
-		// SelectOGC ogc = null;
-		// try {
-		// ogc = new SelectOGC();
-		// ogcInitials = ogc.getInitials();
-		// } catch (InterruptedException e) {
-		// e.printStackTrace();
-		// } catch (InvocationTargetException e) {
-		// e.printStackTrace();
-		// }
-		// System.out.println("OGC initials: " + ogcInitials);
 
+		SelectOGC ogc = new SelectOGC();
 		LifeScienceDiseases lsd = new LifeScienceDiseases();
-		Agriculture agriculture = new Agriculture();
+		Agriculture agr = new Agriculture();
+		EngineeringPhysicalSciences eps = new EngineeringPhysicalSciences();
 
 		// getIRDocument();
 
@@ -511,5 +505,4 @@ public class automate {
 
 		wordMLPackage.save(new java.io.File(newFileName));
 	}
-
 }
