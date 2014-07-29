@@ -1,5 +1,4 @@
 import javax.swing.JCheckBox;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
@@ -7,7 +6,7 @@ import javax.swing.JOptionPane;
  * @author modified from code found at: www.codejava.net
  *
  */
-public class Agriculture extends JFrame {
+public class Agriculture {
 
 	private JCheckBox agricultural_engineering = new JCheckBox(
 			"Agricultural Engineering");
