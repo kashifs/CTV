@@ -1,28 +1,12 @@
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-
+import javax.swing.JOptionPane;
 
 /**
  * 
  * @author modified from code found at: www.codejava.net
  *
  */
-public class LifeScienceDiseases extends JFrame {
-
-
-	private static HashMap<String, String>  keywords;
+public class LifeScienceDiseases {
 
 	private JCheckBox aids = new JCheckBox("AIDS");
 	private JCheckBox allergy = new JCheckBox("Allergy");
@@ -45,134 +29,33 @@ public class LifeScienceDiseases extends JFrame {
 	private JCheckBox obesity = new JCheckBox("Obesity");
 	private JCheckBox metabolic_disorders = new JCheckBox("Metabolic Disorders");
 	private JCheckBox parkinson = new JCheckBox("Parkinson");
-	private JCheckBox respiratory = new JCheckBox("Allergy");
-	private JCheckBox schizophrenia = new JCheckBox("Respiratory");
-	private JCheckBox sleep = new JCheckBox("Allergy");
-	private JCheckBox spinal_injury = new JCheckBox("Sleep");
+	private JCheckBox respiratory = new JCheckBox("Respiratory");
+	private JCheckBox schizophrenia = new JCheckBox("Schizophrenia");
+	private JCheckBox sleep = new JCheckBox("Sleep");
+	private JCheckBox spinal_injury = new JCheckBox("Spinal Injury");
 	private JCheckBox stroke = new JCheckBox("Stroke");
 
-
-	private int sum = 0; // sum of 3 numbers
-
 	public LifeScienceDiseases() {
-		super("Life Science: Diseases");
-		// setLayout(new FlowLayout());
-		setLayout(new GridLayout(5, 5));
-		keywords = new HashMap<String, String>();
-		
-		add(aids);
-		add(allergy);
-		add(alzheimer);
-		add(asthma);
-		add(autoimmune);
-		add(chf);
-		add(copd);
-		add(dementia);
-		add(diabetes);
-		add(dystrophy);
-		add(epilepsy);
-		add(hiv);
-		add(hypertension);
-		add(infectious_disease);
-		add(inflammatory_disease);
-		add(ischemia);
-		add(multiple_sclerosis);
-		add(obesity);
-		add(metabolic_disorders);
-		add(parkinson);
-		add(respiratory);
-		add(schizophrenia);
-		add(sleep);
-		add(spinal_injury);
-		add(stroke);
-		
-		JButton button = new JButton("Continue");
-	    add(button, BorderLayout.AFTER_LAST_LINE);
-	
 
-	    ActionListener buttonListener = new ContinueHandler();
-	    button.addActionListener(buttonListener);
-	    
+		JCheckBox[] categories = { aids, allergy, alzheimer, asthma,
+				autoimmune, chf, copd, dementia, diabetes, dystrophy, epilepsy,
+				hiv, hypertension, infectious_disease, inflammatory_disease,
+				ischemia, multiple_sclerosis, obesity, metabolic_disorders,
+				parkinson, respiratory, schizophrenia, sleep, spinal_injury,
+				stroke };
 
-		// add action listener for the check boxes
-		ActionListener actionListener = new ActionHandler();
-		aids.addActionListener(actionListener);
-		allergy.addActionListener(actionListener);
-		alzheimer.addActionListener(actionListener);
-		asthma.addActionListener(actionListener);
-		autoimmune.addActionListener(actionListener);
-		chf.addActionListener(actionListener);
-		copd.addActionListener(actionListener);
-		dementia.addActionListener(actionListener);
-		diabetes.addActionListener(actionListener);
-		dystrophy.addActionListener(actionListener);
-		epilepsy.addActionListener(actionListener);
-		hiv.addActionListener(actionListener);
-		hypertension.addActionListener(actionListener);
-		infectious_disease.addActionListener(actionListener);
-		inflammatory_disease.addActionListener(actionListener);
-		ischemia.addActionListener(actionListener);
-		multiple_sclerosis.addActionListener(actionListener);
-		obesity.addActionListener(actionListener);
-		metabolic_disorders.addActionListener(actionListener);
-		parkinson.addActionListener(actionListener);
-		respiratory.addActionListener(actionListener);
-		schizophrenia.addActionListener(actionListener);
-		sleep.addActionListener(actionListener);
-		spinal_injury.addActionListener(actionListener);
-		stroke.addActionListener(actionListener);
-		
-		pack();
-		setLocationRelativeTo(null);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		super.dispose();
-	}
-	
-	public void CloseFrame(){
-	    super.dispose();
-	}
-	
-	public static HashMap<String, String> getKeywords(){
-		return keywords;
-	}
+		int n = JOptionPane.showConfirmDialog(null, categories,
+				"Life Science: Diseases", JOptionPane.OK_CANCEL_OPTION);
 
-	class ActionHandler implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			JCheckBox checkbox = (JCheckBox) event.getSource();
-			if (checkbox.isSelected()) {
-				System.out.println(checkbox.getActionCommand());
-				keywords.put(checkbox.getActionCommand(), checkbox.getActionCommand());
-			} else {
-				System.out.println("unchecked: " + checkbox.getActionCommand());
-				keywords.remove(checkbox.getActionCommand());
-				
-			}
+		for (int i = 0; i < categories.length; i++) {
+			JCheckBox temp = (JCheckBox) categories[i];
+			if (temp.isSelected())
+				System.out.println(temp.getActionCommand());
 		}
-	}
-	
-	class ContinueHandler implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			System.out.println("button pressed!");
-			CloseFrame();
-			ExecutorService service = Executors.newFixedThreadPool(1);
-			service.execute(new Runnable() {
 
-				@Override
-				public void run() {
-					new Agriculture().setVisible(true);
-				}
-			});
-		}
 	}
 
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				new LifeScienceDiseases().setVisible(true);
-			}
-		});
+		new LifeScienceDiseases();
 	}
 }

@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 
 import javax.swing.CellEditor;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -66,6 +67,33 @@ public class automate {
 	private static Tbl appendixII, mainTable;
 
 	private static String patentNumber, filingDate, invName, description;
+	
+	private static JCheckBox aids = new JCheckBox("AIDS");
+	private static JCheckBox allergy = new JCheckBox("Allergy");
+	private static JCheckBox alzheimer = new JCheckBox("Alzheimer");
+	private static JCheckBox asthma = new JCheckBox("Asthma");
+	private static JCheckBox autoimmune = new JCheckBox("Autoimmune");
+	private static JCheckBox chf = new JCheckBox("CHF");
+	private static JCheckBox copd = new JCheckBox("COPD");
+	private static JCheckBox dementia = new JCheckBox("Dementia");
+	private static JCheckBox diabetes = new JCheckBox("Diabetes");
+	private static JCheckBox dystrophy = new JCheckBox("Dystrophy");
+	private static JCheckBox epilepsy = new JCheckBox("Epilepsy");
+	private static JCheckBox hiv = new JCheckBox("HIV");
+	private static JCheckBox hypertension = new JCheckBox("Hypertension");
+	private static JCheckBox infectious_disease = new JCheckBox("Infectious disease");
+	private static JCheckBox inflammatory_disease = new JCheckBox(
+			"Inflammatory Disease");
+	private static JCheckBox ischemia = new JCheckBox("Ischemia");
+	private static JCheckBox multiple_sclerosis = new JCheckBox("Multiple Sclerosis");
+	private static JCheckBox obesity = new JCheckBox("Obesity");
+	private static JCheckBox metabolic_disorders = new JCheckBox("Metabolic Disorders");
+	private static JCheckBox parkinson = new JCheckBox("Parkinson");
+	private static JCheckBox respiratory = new JCheckBox("Allergy");
+	private static JCheckBox schizophrenia = new JCheckBox("Respiratory");
+	private static JCheckBox sleep = new JCheckBox("Allergy");
+	private static JCheckBox spinal_injury = new JCheckBox("Sleep");
+	private static JCheckBox stroke = new JCheckBox("Stroke");
 
 	private static List<Object> getAllElementFromObject(Object obj,
 			Class<?> toSearch) {
@@ -441,7 +469,7 @@ public class automate {
 		//
 		// String tloInitials = promptTLOInitials();
 		// System.out.println("TLO Initials: " + tloInitials);
-
+		//
 		// String ogcInitials = null;
 		// SelectOGC ogc = null;
 		// try {
@@ -454,21 +482,8 @@ public class automate {
 		// }
 		// System.out.println("OGC initials: " + ogcInitials);
 
-		// SwingUtilities.invokeLater(new Runnable() {
-
-		ExecutorService service = Executors.newFixedThreadPool(1);
-
-		service.execute(new Runnable() {
-
-			@Override
-			public void run() {
-				new LifeScienceDiseases().setVisible(true);
-			}
-		});
-		
-		
-
-
+		LifeScienceDiseases lsd = new LifeScienceDiseases();
+		Agriculture agriculture = new Agriculture();
 
 		// getIRDocument();
 
