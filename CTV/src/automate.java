@@ -5,17 +5,25 @@
  *		   correctly formatted data.
  */
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.CellEditor;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -51,11 +59,10 @@ public class automate {
 	private static String fileName;
 	private static Vector invNames, assignNames;
 	private static boolean isGranted;
-	
-	private static Tbl Appendix2, mainTable;
-	
+
+	private static Tbl appendixII, mainTable;
+
 	private static String patentNumber, filingDate, invName, description;
-	
 
 	private static List<Object> getAllElementFromObject(Object obj,
 			Class<?> toSearch) {
@@ -82,237 +89,6 @@ public class automate {
 			return false;
 		else
 			return true;
-	}
-	
-	private static void populateMainTable(){
-		
-	}
-	
-	private static void populateAppendixII(){
-		
-	}
-	
-	private static void getUserLink(){
-		String googleLink;
-		do {
-			googleLink = JOptionPane
-					.showInputDialog(null, "Google patent link?", "Link",
-							JOptionPane.QUESTION_MESSAGE);
-		} while (isNotGooglePatentLink(googleLink));
-
-		url = googleLink;
-		
-	}
-	
-	private static void getIRDocument() throws Docx4JException{
-		fileName = null;
-		
-		JFileChooser fileChooser = new JFileChooser();
-		FileNameExtensionFilter filter = new FileNameExtensionFilter(
-				".docx files", "docx");
-		fileChooser.setFileFilter(filter);
-		fileChooser.setCurrentDirectory(new File(System
-				.getProperty("user.home")));
-		int result = fileChooser.showOpenDialog(null);
-		if (result == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = fileChooser.getSelectedFile();
-			fileName = selectedFile.getAbsolutePath();
-		}
-		
-		if (fileName == null){
-			System.err.println("Could not open file.");
-			System.exit(1);
-		}
-		
-		//TODO add this line back in production
-//		wordMLPackage = WordprocessingMLPackage
-//				.load(new java.io.File(fileName));
-		
-	}
-	
-	private static void fetchPatentData() throws IOException{
-		
-		Document doc = Jsoup.connect(url).userAgent("Mozilla").get();
-
-		Elements titleElement = doc.select("meta[name=DC.title]");
-		invName = titleElement.get(0).attr("content");
-
-		Elements nameElement = doc.select("meta[name=DC.contributor]");
-
-		invNames = new Vector();
-		assignNames = new Vector();
-
-		for (Element element : nameElement) {
-			if (element.attr("scheme").equalsIgnoreCase("inventor"))
-				invNames.appendElement(element.attr("content"));
-			else
-				assignNames.appendElement(element.attr("content"));
-		}
-
-		Elements descriptions = doc.select("meta[name=DC.description]");
-		description = descriptions.get(0).attr("content");
-		Elements row = doc.select(".single-patent-bibdata");
-
-		patentNumber = row.get(0).text().split(" ")[0];
-		filingDate = row.get(4).text();
-
-		isGranted = false;
-		if (row.get(1).text().equalsIgnoreCase("grant"))
-			isGranted = true;
-		
-	}
-
-	public static void main(String[] args) throws IOException, Docx4JException {
-
-		url = "https://www.google.com/patents/US20120015839";
-		// url = "https://www.google.com/patents/US20120202214";
-		// url = "https://www.google.com/patents/US8352194";
-
-		
-//		getUserLink();
-		fetchPatentData();
-		
-//		getIRDocument();
-		
-
-
-
-		fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";
-
-		wordMLPackage = WordprocessingMLPackage
-				.load(new java.io.File(fileName));
-
-		factory = Context.getWmlObjectFactory();
-
-		MainDocumentPart mp = wordMLPackage.getMainDocumentPart();
-		
-		Styles styles = mp.getStyleDefinitionsPart().getJaxbElement();
-		changeNormalFont(styles, factory, "Arial");
-		
-		populateMainTable();
-		
-		populateAppendixII();
-
-		Hyperlink link = createHyperlink(wordMLPackage, url, patentNumber);
-
-
-		
-
-		List<Object> tables = getAllElementFromObject(
-				wordMLPackage.getMainDocumentPart(), Tbl.class);
-
-		Tr tableRow = factory.createTr();
-
-		addFirstColumn(tableRow, patentNumber, filingDate, link);
-		addSecondColumn(tableRow);
-
-		addColumn(tableRow, invName);
-		addColumn(tableRow, description);
-
-		Appendix2 = (Tbl) tables.get(1);
-		Appendix2.getContent().add(tableRow);
-
-		mainTable = (Tbl) tables.get(0);
-
-		List rows = mainTable.getContent();
-		Tr firstRow = (Tr) rows.get(0);
-		List cells = firstRow.getContent();
-
-		System.out.println(cells.size());
-		System.out.println("Class: " + cells.get(1).getClass());
-		Tc tc = (Tc) XmlUtils.unwrap(cells.get(1));
-
-		// System.out.println(tc.toString());
-		System.out.println("Content: " + tc.getContent().toString());
-		tc.getContent().remove(0);
-
-		P spc = factory.createP();
-		R rspcTop = factory.createR();
-		
-
-		Text IRnum = factory.createText();
-		IRnum.setValue("1234124haiusdf");
-		rspcTop.getContent().add(IRnum);
-		spc.getContent().add(rspcTop);
-
-		tc.getContent().add(spc);
-
-
-		
-	
-
-		String newFileName = fileName.substring(0, fileName.length() - 5)
-				+ "_1.docx";
-
-		wordMLPackage.save(new java.io.File(newFileName));
-		
-
-	}
-
-	private static void changeNormalFont(Styles styles, ObjectFactory factory,
-			String string) {
-		for (Style s : styles.getStyle()) {
-			// System.out.println(s.getStyleId());
-			// System.out.println(s.getName());
-			if (s.getName().getVal().equals("Normal")) {
-				RPr rpr = s.getRPr();
-				if (rpr == null) {
-					rpr = factory.createRPr();
-					s.setRPr(rpr);
-				}
-				RFonts rf = rpr.getRFonts();
-				if (rf == null) {
-					rf = factory.createRFonts();
-					rpr.setRFonts(rf);
-					HpsMeasure size = new HpsMeasure();
-					size.setVal(BigInteger.valueOf(20));
-					rpr.setSz(size);
-				}
-				rf.setAscii(string);
-			}
-		}
-
-	}
-
-	public static Hyperlink createHyperlink(
-			WordprocessingMLPackage wordMLPackage, String url,
-			String patentColumnNum) {
-
-		try {
-
-			// We need to add a relationship to word/_rels/document.xml.rels
-			// but since its external, we don't use the
-			// usual wordMLPackage.getMainDocumentPart().addTargetPart
-			// mechanism
-			org.docx4j.relationships.ObjectFactory factory = new org.docx4j.relationships.ObjectFactory();
-
-			org.docx4j.relationships.Relationship rel = factory
-					.createRelationship();
-			rel.setType(Namespaces.HYPERLINK);
-			rel.setTarget(url);
-			rel.setTargetMode("External");
-
-			wordMLPackage.getMainDocumentPart().getRelationshipsPart()
-					.addRelationship(rel);
-
-			// addRelationship sets the rel's @Id
-
-			String hpl = "<w:hyperlink r:id=\""
-					+ rel.getId()
-					+ "\" xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\" "
-					+ "xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" >"
-					+ "<w:r>" + "<w:rPr>" + "<w:rStyle w:val=\"Hyperlink\" />"
-					+ "</w:rPr>" + "<w:t>" + patentColumnNum + "</w:t>"
-					+ "</w:r>" + "</w:hyperlink>";
-
-			return (Hyperlink) XmlUtils.unmarshalString(hpl, Context.jc,
-					P.Hyperlink.class);
-			// return (Hyperlink)XmlUtils.unmarshalString(hpl);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
 	}
 
 	private static void addFirstColumn(Tr tableRow, String patentColumnNum,
@@ -423,4 +199,289 @@ public class automate {
 
 		tableRow.getContent().add(tableCell);
 	}
+
+	public static Hyperlink createHyperlink(
+			WordprocessingMLPackage wordMLPackage, String url,
+			String patentColumnNum) {
+
+		try {
+
+			// We need to add a relationship to word/_rels/document.xml.rels
+			// but since its external, we don't use the
+			// usual wordMLPackage.getMainDocumentPart().addTargetPart
+			// mechanism
+			org.docx4j.relationships.ObjectFactory factory = new org.docx4j.relationships.ObjectFactory();
+
+			org.docx4j.relationships.Relationship rel = factory
+					.createRelationship();
+			rel.setType(Namespaces.HYPERLINK);
+			rel.setTarget(url);
+			rel.setTargetMode("External");
+
+			wordMLPackage.getMainDocumentPart().getRelationshipsPart()
+					.addRelationship(rel);
+
+			// addRelationship sets the rel's @Id
+
+			String hpl = "<w:hyperlink r:id=\""
+					+ rel.getId()
+					+ "\" xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\" "
+					+ "xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" >"
+					+ "<w:r>" + "<w:rPr>" + "<w:rStyle w:val=\"Hyperlink\" />"
+					+ "</w:rPr>" + "<w:t>" + patentColumnNum + "</w:t>"
+					+ "</w:r>" + "</w:hyperlink>";
+
+			return (Hyperlink) XmlUtils.unmarshalString(hpl, Context.jc,
+					P.Hyperlink.class);
+			// return (Hyperlink)XmlUtils.unmarshalString(hpl);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	private static void populateMainTable() {
+		List rows = mainTable.getContent();
+		Tr firstRow = (Tr) rows.get(0);
+		List cells = firstRow.getContent();
+
+		System.out.println(cells.size());
+		System.out.println("Class: " + cells.get(1).getClass());
+		Tc tc = (Tc) XmlUtils.unwrap(cells.get(1));
+
+		// System.out.println(tc.toString());
+		System.out.println("Content: " + tc.getContent().toString());
+		tc.getContent().remove(0);
+
+		P spc = factory.createP();
+		R rspcTop = factory.createR();
+
+		Text IRnum = factory.createText();
+		IRnum.setValue("1234124haiusdf");
+		rspcTop.getContent().add(IRnum);
+		spc.getContent().add(rspcTop);
+
+		tc.getContent().add(spc);
+
+	}
+
+	private static void populateAppendixII() {
+		Hyperlink link = createHyperlink(wordMLPackage, url, patentNumber);
+		Tr tableRow = factory.createTr();
+
+		addFirstColumn(tableRow, patentNumber, filingDate, link);
+		addSecondColumn(tableRow);
+
+		addColumn(tableRow, invName);
+		addColumn(tableRow, description);
+
+		appendixII.getContent().add(tableRow);
+
+	}
+
+	private static void getUserLink() {
+		String googleLink;
+		do {
+			googleLink = JOptionPane
+					.showInputDialog(null, "Google patent link?", "Link",
+							JOptionPane.QUESTION_MESSAGE);
+		} while (isNotGooglePatentLink(googleLink));
+
+		url = googleLink;
+	}
+
+	private static void getIRDocument() throws Docx4JException {
+		fileName = null;
+
+		JFileChooser fileChooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+				".docx files", "docx");
+		fileChooser.setFileFilter(filter);
+		fileChooser.setCurrentDirectory(new File(System
+				.getProperty("user.home")));
+		int result = fileChooser.showOpenDialog(null);
+		if (result == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileChooser.getSelectedFile();
+			fileName = selectedFile.getAbsolutePath();
+		}
+
+		if (fileName == null) {
+			System.err.println("Could not open file.");
+			System.exit(1);
+		}
+
+		// TODO add this line back in production
+		// wordMLPackage = WordprocessingMLPackage
+		// .load(new java.io.File(fileName));
+
+	}
+
+	private static void fetchPatentData() throws IOException {
+
+		Document doc = Jsoup.connect(url).userAgent("Mozilla").get();
+
+		Elements titleElement = doc.select("meta[name=DC.title]");
+		invName = titleElement.get(0).attr("content");
+
+		Elements nameElement = doc.select("meta[name=DC.contributor]");
+
+		invNames = new Vector();
+		assignNames = new Vector();
+
+		for (Element element : nameElement) {
+			if (element.attr("scheme").equalsIgnoreCase("inventor"))
+				invNames.appendElement(element.attr("content"));
+			else
+				assignNames.appendElement(element.attr("content"));
+		}
+
+		Elements descriptions = doc.select("meta[name=DC.description]");
+		description = descriptions.get(0).attr("content");
+		Elements row = doc.select(".single-patent-bibdata");
+
+		patentNumber = row.get(0).text().split(" ")[0];
+		filingDate = row.get(4).text();
+
+		isGranted = false;
+		if (row.get(1).text().equalsIgnoreCase("grant"))
+			isGranted = true;
+
+	}
+
+	private static void changeNormalFont(Styles styles, ObjectFactory factory,
+			String string) {
+		for (Style s : styles.getStyle()) {
+			// System.out.println(s.getStyleId());
+			// System.out.println(s.getName());
+			if (s.getName().getVal().equals("Normal")) {
+				RPr rpr = s.getRPr();
+				if (rpr == null) {
+					rpr = factory.createRPr();
+					s.setRPr(rpr);
+				}
+				RFonts rf = rpr.getRFonts();
+				if (rf == null) {
+					rf = factory.createRFonts();
+					rpr.setRFonts(rf);
+					HpsMeasure size = new HpsMeasure();
+					size.setVal(BigInteger.valueOf(20));
+					rpr.setSz(size);
+				}
+				rf.setAscii(string);
+			}
+		}
+	}
+
+	private static String promptIRNumber() {
+		String irNum = JOptionPane.showInputDialog(null, "IR Number?",
+				"IR Number", JOptionPane.QUESTION_MESSAGE);
+		return irNum;
+	}
+
+	private static boolean isNotCorrectInitials(String userInitials) {
+		if (userInitials == null)
+			System.exit(0);
+
+		System.out.println(userInitials.length());
+
+		boolean correctLength = (userInitials.length() == 3)
+				|| (userInitials.length() == 2);
+		System.out.println("correctLength: " + correctLength);
+
+		return !userInitials.matches("[a-zA-Z]+") || !correctLength;
+	}
+
+	private static String promptUserInitials() {
+
+		String userInitials;
+		do {
+			userInitials = JOptionPane.showInputDialog(null,
+					"What are your initials?", "Your Initials",
+					JOptionPane.QUESTION_MESSAGE);
+		} while (isNotCorrectInitials(userInitials));
+
+		if (userInitials.length() == 2) {
+			userInitials = userInitials.charAt(0) + "X"
+					+ userInitials.charAt(1);
+		}
+
+		return userInitials.toUpperCase();
+	}
+
+	private static String promptTLOInitials() {
+
+		String tloInitials;
+
+		do {
+			tloInitials = JOptionPane.showInputDialog(null,
+					"What are the TLO's initials?", "TLO Initials",
+					JOptionPane.QUESTION_MESSAGE);
+		} while (isNotCorrectInitials(tloInitials));
+
+		return tloInitials.toUpperCase();
+	}
+
+	public static void main(String[] args) throws IOException, Docx4JException {
+
+		url = "https://www.google.com/patents/US20120015839";
+		// url = "https://www.google.com/patents/US20120202214";
+		// url = "https://www.google.com/patents/US8352194";
+
+		// getUserLink();
+		fetchPatentData();
+		// String irNum = promptIRNumber();
+		// System.out.println("IR Number: " + irNum);
+		//
+		// String userInitials = promptUserInitials();
+		// System.out.println("User Initials: " + userInitials);
+		//
+		// String tloInitials = promptTLOInitials();
+		// System.out.println("TLO Initials: " + tloInitials);
+
+		String ogcInitials = null;
+
+		SelectOGC ogc = null;
+		try {
+			ogc = new SelectOGC();
+			ogcInitials = ogc.getInitials();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+
+		
+		System.out.println("OGC initials: " + ogcInitials);
+		
+		
+		
+		
+		// getIRDocument();
+
+		fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";
+
+		wordMLPackage = WordprocessingMLPackage
+				.load(new java.io.File(fileName));
+		factory = Context.getWmlObjectFactory();
+		MainDocumentPart mp = wordMLPackage.getMainDocumentPart();
+
+		Styles styles = mp.getStyleDefinitionsPart().getJaxbElement();
+		changeNormalFont(styles, factory, "Arial");
+
+		List<Object> tables = getAllElementFromObject(
+				wordMLPackage.getMainDocumentPart(), Tbl.class);
+
+		mainTable = (Tbl) tables.get(0);
+		populateMainTable();
+
+		appendixII = (Tbl) tables.get(1);
+		populateAppendixII();
+
+		String newFileName = fileName.substring(0, fileName.length() - 5)
+				+ "_1.docx";
+
+		wordMLPackage.save(new java.io.File(newFileName));
+	}
+
 }
