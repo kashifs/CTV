@@ -340,37 +340,6 @@ public class Automate {
 
 	}
 
-	private static void fetchPatentData() throws IOException {
-
-		Document doc = Jsoup.connect(url).userAgent("Mozilla").get();
-
-		Elements titleElement = doc.select("meta[name=DC.title]");
-		invName = titleElement.get(0).attr("content");
-
-		Elements nameElement = doc.select("meta[name=DC.contributor]");
-
-		invNames = new Vector();
-		assignNames = new Vector();
-
-		for (Element element : nameElement) {
-			if (element.attr("scheme").equalsIgnoreCase("inventor"))
-				invNames.appendElement(element.attr("content"));
-			else
-				assignNames.appendElement(element.attr("content"));
-		}
-
-		Elements descriptions = doc.select("meta[name=DC.description]");
-		description = descriptions.get(0).attr("content");
-		Elements row = doc.select(".single-patent-bibdata");
-
-		patentNumber = row.get(0).text().split(" ")[0];
-		filingDate = row.get(4).text();
-
-		isGranted = false;
-		if (row.get(1).text().equalsIgnoreCase("grant"))
-			isGranted = true;
-
-	}
 
 	private static void changeNormalFont(Styles styles, ObjectFactory factory,
 			String string) {
@@ -452,7 +421,19 @@ public class Automate {
 		// url = "https://www.google.com/patents/US8352194";
 
 		// getUserLink();
-		fetchPatentData();
+		
+		PatentInformation pInfo = new PatentInformation(url);
+
+		invName = pInfo.getInvName();
+		filingDate = pInfo.getFilingDate();
+		isGranted = pInfo.isPatentGranted();
+		patentNumber = pInfo.getPatentNumber();
+		description = pInfo.getDescription();
+		
+		invNames = pInfo.getInventorNames();
+		assignNames = pInfo.getAssigneeNames();
+		
+		
 		String irNum = promptIRNumber();
 		System.out.println("IR Number: " + irNum);
 		//

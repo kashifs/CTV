@@ -25,8 +25,36 @@ public class PatentInformation {
 	private static boolean isGranted;
 	private static String patentNumber, filingDate, invName, description;
 
-	public PatentInformation(String userUrl) {
+	public PatentInformation(String userUrl) throws IOException {
 		url = userUrl;
+		
+		Document doc = Jsoup.connect(url).userAgent("Mozilla").get();
+
+		Elements titleElement = doc.select("meta[name=DC.title]");
+		invName = titleElement.get(0).attr("content");
+
+		Elements nameElement = doc.select("meta[name=DC.contributor]");
+
+		invNames = new Vector();
+		assignNames = new Vector();
+
+		for (Element element : nameElement) {
+			if (element.attr("scheme").equalsIgnoreCase("inventor"))
+				invNames.appendElement(element.attr("content"));
+			else
+				assignNames.appendElement(element.attr("content"));
+		}
+
+		Elements descriptions = doc.select("meta[name=DC.description]");
+		description = descriptions.get(0).attr("content");
+		Elements row = doc.select(".single-patent-bibdata");
+
+		patentNumber = row.get(0).text().split(" ")[0];
+		filingDate = row.get(4).text();
+
+		isGranted = false;
+		if (row.get(1).text().equalsIgnoreCase("grant"))
+			isGranted = true;
 	}
 
 	public String getInvName() {
@@ -57,37 +85,6 @@ public class PatentInformation {
 		return isGranted;
 	}
 
-	private void fetchPatentData() throws IOException {
-
-		Document doc = Jsoup.connect(url).userAgent("Mozilla").get();
-
-		Elements titleElement = doc.select("meta[name=DC.title]");
-		invName = titleElement.get(0).attr("content");
-
-		Elements nameElement = doc.select("meta[name=DC.contributor]");
-
-		invNames = new Vector();
-		assignNames = new Vector();
-
-		for (Element element : nameElement) {
-			if (element.attr("scheme").equalsIgnoreCase("inventor"))
-				invNames.appendElement(element.attr("content"));
-			else
-				assignNames.appendElement(element.attr("content"));
-		}
-
-		Elements descriptions = doc.select("meta[name=DC.description]");
-		description = descriptions.get(0).attr("content");
-		Elements row = doc.select(".single-patent-bibdata");
-
-		patentNumber = row.get(0).text().split(" ")[0];
-		filingDate = row.get(4).text();
-
-		isGranted = false;
-		if (row.get(1).text().equalsIgnoreCase("grant"))
-			isGranted = true;
-
-	}
 
 	public static void main(String[] args) throws IOException {
 		String url;
@@ -97,7 +94,6 @@ public class PatentInformation {
 
 		PatentInformation pi = new PatentInformation(url);
 
-		pi.fetchPatentData();
 
 		System.out.println("Patent Number: " + pi.getPatentNumber());
 		System.out.println("Is patent granted: " + pi.isPatentGranted());
