@@ -15,24 +15,11 @@ import java.util.List;
 
 import java.util.TreeSet;
 
-import javax.swing.CellEditor;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-
-import org.apache.poi.hwpf.usermodel.Paragraph;
 import org.docx4j.jaxb.Context;
-import org.docx4j.model.structure.PageSizePaper;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.wml.*;
@@ -40,10 +27,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.plutext.jaxb.xslfo.SpeakHeaderType;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.openpackaging.parts.relationships.Namespaces;
-import org.docx4j.relationships.Relationship;
 import org.docx4j.XmlUtils;
 import org.docx4j.wml.ObjectFactory;
 import org.docx4j.wml.P;
@@ -61,6 +46,8 @@ public class Automate {
 	private static String fileName;
 	private static Vector invNames, assignNames;
 	private static boolean isGranted;
+	
+	private static String irNum;
 
 	private static Tbl appendixII, mainTable;
 
@@ -265,12 +252,35 @@ public class Automate {
 		P spc = factory.createP();
 		R rspcTop = factory.createR();
 
-		Text IRnum = factory.createText();
-		IRnum.setValue("1234124haiusdf");
-		rspcTop.getContent().add(IRnum);
+		Text irNumText = factory.createText();
+		irNumText.setValue(irNum);
+		rspcTop.getContent().add(irNumText);
 		spc.getContent().add(rspcTop);
 
 		tc.getContent().add(spc);
+		
+		Tr fifthRow = (Tr) rows.get(4);
+		List cells5 = fifthRow.getContent();
+		Tc keywordsCell = (Tc) XmlUtils.unwrap(cells5.get(1));
+		keywordsCell.getContent().remove(0);
+		
+		P keywords_spc = factory.createP();
+		R keywords_rspc = factory.createR();
+		
+		Text kewordsText = factory.createText();
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for (String s : keywords) {
+		    sb.append(s.toLowerCase() + ", ");
+		}
+		
+		String all_keywords = sb.substring(0, (sb.length() - 1));
+		kewordsText.setValue(all_keywords);
+		keywords_rspc.getContent().add(kewordsText);
+		keywords_spc.getContent().add(keywords_rspc);
+		
+		keywordsCell.getContent().add(keywords_spc);
 
 	}
 
@@ -382,7 +392,7 @@ public class Automate {
 	}
 
 	private static String promptIRNumber() {
-		String irNum = JOptionPane.showInputDialog(null, "IR Number?",
+		irNum = JOptionPane.showInputDialog(null, "IR Number?",
 				"IR Number", JOptionPane.QUESTION_MESSAGE);
 		return irNum;
 	}
@@ -438,21 +448,20 @@ public class Automate {
 
 		// getUserLink();
 		fetchPatentData();
-		// String irNum = promptIRNumber();
-		// System.out.println("IR Number: " + irNum);
+		 String irNum = promptIRNumber();
+		 System.out.println("IR Number: " + irNum);
 		//
 		// String userInitials = promptUserInitials();
 		// System.out.println("User Initials: " + userInitials);
 		//
 		// String tloInitials = promptTLOInitials();
 		// System.out.println("TLO Initials: " + tloInitials);
-		//
-
-		SelectOGC ogc = new SelectOGC();
-		System.out.println(ogc.getInitials());
+	
 
 		keywords = new TreeSet<String>();
 		
+		
+		SelectOGC ogc = new SelectOGC();
 		LifeScienceDiseases lsd = new LifeScienceDiseases(keywords);
 		Agriculture agr = new Agriculture(keywords);
 		EngineeringPhysicalSciences eps = new EngineeringPhysicalSciences(keywords);
@@ -465,15 +474,10 @@ public class Automate {
 		Materials mater = new Materials(keywords);
 		CleanTechnology ctech = new CleanTechnology(keywords);
 
-		System.out.println("Number of Keywords: " + keywords.size());
-		
-		for (String s : keywords) {
-		    System.out.println(s);
-		}
 		
 		
 		
-		System.exit(1);
+
 
 		fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";
 
