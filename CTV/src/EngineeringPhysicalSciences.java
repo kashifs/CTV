@@ -1,4 +1,3 @@
-import java.util.HashMap;
 import java.util.TreeSet;
 
 import javax.swing.JCheckBox;
