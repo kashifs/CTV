@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -19,7 +20,7 @@ public class EngineeringPhysicalSciences {
 	private JCheckBox rf_mems = new JCheckBox("RF-MEMS");
 	private JCheckBox sls = new JCheckBox("SLS");
 
-	public EngineeringPhysicalSciences(HashMap<String, String> keywords) {
+	public EngineeringPhysicalSciences(TreeSet<String> keywords) {
 
 		JCheckBox[] categories = { lithography, mechanical, mems,
 				micromachining, nano, propulsion, rf_mems, sls };
@@ -30,14 +31,14 @@ public class EngineeringPhysicalSciences {
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
 			if (temp.isSelected()) {
-				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+				keywords.add(temp.getActionCommand());
 			}
 		}
 
 	}
 
 	public static void main(String[] args) {
-		HashMap<String, String> keywords = new HashMap<String, String>();
+		TreeSet<String> keywords = new TreeSet<String>();
 
 		new EngineeringPhysicalSciences(keywords);
 	}

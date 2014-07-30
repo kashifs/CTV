@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -20,7 +21,7 @@ public class Materials {
 	private JCheckBox superconductors = new JCheckBox("Superconductors");
 	private JCheckBox thin_films = new JCheckBox("Thin Films");
 
-	public Materials(HashMap<String, String> keywords) {
+	public Materials(TreeSet<String> keywords) {
 		JCheckBox[] categories = { biomaterials, cementitious, ceramics,
 				composites, imaging_materials, lubricant, polymers,
 				superconductors, thin_films };
@@ -31,13 +32,13 @@ public class Materials {
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
 			if (temp.isSelected()){
-				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+				keywords.add(temp.getActionCommand());
 			}
 		}
 	}
 
 	public static void main(String[] args) {
-		HashMap<String, String> keywords = new HashMap<String, String>();
+		TreeSet<String> keywords = new TreeSet<String>();
 		
 		new Materials(keywords);
 	}

@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -15,7 +16,7 @@ public class Sensors {
 	private JCheckBox motion = new JCheckBox("Motion");
 	private JCheckBox particle_radiation = new JCheckBox("Particle & Radiation");
 
-	public Sensors(HashMap<String, String> keywords) {
+	public Sensors(TreeSet<String> keywords) {
 		JCheckBox[] categories = { biologic, chemical_gas, motion,
 				particle_radiation };
 
@@ -25,13 +26,13 @@ public class Sensors {
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
 			if (temp.isSelected()) {
-				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+				keywords.add(temp.getActionCommand());
 			}
 		}
 	}
 
 	public static void main(String[] args) {
-		HashMap<String, String> keywords = new HashMap<String, String>();
+		TreeSet<String> keywords = new TreeSet<String>();
 		
 		new Sensors(keywords);
 	}

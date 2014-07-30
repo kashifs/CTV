@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -30,7 +31,7 @@ public class Agriculture {
 	private JCheckBox plant_storage = new JCheckBox("Plant Storage");
 	private JCheckBox plant_varieties = new JCheckBox("Plant Varieties");
 
-	public Agriculture(HashMap<String, String> keywords) {
+	public Agriculture(TreeSet<String> keywords) {
 		JCheckBox[] categories = { agricultural_engineering, agribusiness,
 				agronomics, aquaculture, crop_improvement, entomology,
 				food_science_nutrition, forestry, gmo, non_gmo, paper_pulp,
@@ -42,14 +43,14 @@ public class Agriculture {
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
 			if (temp.isSelected()) {
-				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+				keywords.add(temp.getActionCommand());
 			}
 		}
 
 	}
 
 	public static void main(String[] args) {
-		HashMap<String, String> keywords = new HashMap<String, String>();
+		TreeSet<String> keywords = new TreeSet<String>();
 
 		new Agriculture(keywords);
 	}

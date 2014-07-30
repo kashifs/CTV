@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -22,7 +23,7 @@ public class Software {
 	private JCheckBox voip = new JCheckBox("VOIP");
 	private JCheckBox opensource = new JCheckBox("Opensource");
 
-	public Software(HashMap<String, String> keywords) {
+	public Software(TreeSet<String> keywords) {
 		JCheckBox[] categories = { algorithms, audio, graphics_technology,
 				machine_learning, peer_to_peer, photo_imaging, user_interface,
 				video_imaging, voip, opensource };
@@ -33,13 +34,13 @@ public class Software {
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
 			if (temp.isSelected()){
-				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+				keywords.add(temp.getActionCommand());
 			}
 		}
 	}
 
 	public static void main(String[] args) {
-		HashMap<String, String> keywords = new HashMap<String, String>();
+		TreeSet<String> keywords = new TreeSet<String>();
 		
 		new Software(keywords);
 	}

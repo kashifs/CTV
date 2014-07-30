@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -31,7 +32,7 @@ public class Electronics {
 	private JCheckBox robotics = new JCheckBox("Robotics");
 	private JCheckBox wireless = new JCheckBox("Wireless");
 
-	public Electronics(HashMap<String, String> keywords) {
+	public Electronics(TreeSet<String> keywords) {
 		JCheckBox[] categories = { analog, digital, antenna,
 				assembly_packaging, asynchronous, circuit_design,
 				computer_hardware, data_storage, eda, fiberoptic, gps,
@@ -44,13 +45,13 @@ public class Electronics {
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
 			if (temp.isSelected()){
-				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+				keywords.add(temp.getActionCommand());
 			}
 		}
 	}
 
 	public static void main(String[] args) {
-		HashMap<String, String> keywords = new HashMap<String, String>();
+		TreeSet<String> keywords = new TreeSet<String>();
 		
 		new Electronics(keywords);
 	}

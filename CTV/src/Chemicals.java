@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -20,7 +21,7 @@ public class Chemicals {
 	private JCheckBox processing = new JCheckBox("Processing");
 	private JCheckBox specialty_chemicals = new JCheckBox("Specialty");
 
-	public Chemicals(HashMap<String, String> keywords) {
+	public Chemicals(TreeSet<String> keywords) {
 		JCheckBox[] categories = { additives, biochemical, catalyst,
 				chemical_processing, coatings, electrochemistry, polymers,
 				processing, specialty_chemicals };
@@ -31,13 +32,13 @@ public class Chemicals {
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
 			if (temp.isSelected()) {
-				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+				keywords.add(temp.getActionCommand());
 			}
 		}
 	}
 
 	public static void main(String[] args) {
-		HashMap<String, String> keywords = new HashMap<String, String>();
+		TreeSet<String> keywords = new TreeSet<String>();
 
 		new Chemicals(keywords);
 	}

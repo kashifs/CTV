@@ -5,19 +5,15 @@
  *		   correctly formatted data.
  */
 
-import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+
+
+import java.util.TreeSet;
 
 import javax.swing.CellEditor;
 import javax.swing.DefaultComboBoxModel;
@@ -69,10 +65,10 @@ public class Automate {
 	private static Tbl appendixII, mainTable;
 
 	private static String patentNumber, filingDate, invName, description;
+	
+	private static TreeSet<String> keywords;
 
-	private static HashMap<String, String> keywords;
-
-	public static HashMap<String, String> getKeywords() {
+	public static TreeSet<String> getKeywords() {
 		return keywords;
 	}
 
@@ -455,7 +451,8 @@ public class Automate {
 		SelectOGC ogc = new SelectOGC();
 		System.out.println(ogc.getInitials());
 
-		keywords = new HashMap<String, String>();
+		keywords = new TreeSet<String>();
+		
 		LifeScienceDiseases lsd = new LifeScienceDiseases(keywords);
 		Agriculture agr = new Agriculture(keywords);
 		EngineeringPhysicalSciences eps = new EngineeringPhysicalSciences(keywords);
@@ -470,9 +467,8 @@ public class Automate {
 
 		System.out.println("Number of Keywords: " + keywords.size());
 		
-		for (Entry<String, String> entry : keywords.entrySet()) {
-			String key = entry.getKey();
-			System.out.println(key);
+		for (String s : keywords) {
+		    System.out.println(s);
 		}
 		
 		

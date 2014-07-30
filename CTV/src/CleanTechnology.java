@@ -1,4 +1,4 @@
-import java.util.HashMap;
+import java.util.TreeSet;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -30,7 +30,7 @@ public class CleanTechnology {
 	private JCheckBox voltaic = new JCheckBox("Voltaic");
 	private JCheckBox weather = new JCheckBox("Weather");
 
-	public CleanTechnology(HashMap<String, String> keywords) {
+	public CleanTechnology(TreeSet<String> keywords) {
 		JCheckBox[] categories = { green_technology, clean_technology, battery,
 				coal, energy_storage, fuel_cells, hydrogen, natural_gas,
 				nuclear, petrochemical, photonics, remediation,
@@ -43,13 +43,13 @@ public class CleanTechnology {
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
 			if (temp.isSelected()){
-				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+				keywords.add(temp.getActionCommand());
 			}
 		}
 	}
 
 	public static void main(String[] args) {
-		HashMap<String, String> keywords = new HashMap<String, String>();
+		TreeSet<String> keywords = new TreeSet<String>();
 		
 		new CleanTechnology(keywords);
 	}

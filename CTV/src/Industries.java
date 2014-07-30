@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -48,7 +49,7 @@ public class Industries {
 	private JCheckBox training_education = new JCheckBox("Training & Education");
 	private JCheckBox web_internet = new JCheckBox("Web & Internet");
 
-	public Industries(HashMap<String, String> keywords) {
+	public Industries(TreeSet<String> keywords) {
 		JCheckBox[] categories = { aerospace, automation, automotive,
 				bioinformatics, building, chemical_processing,
 				chemical_synthesis, communications, computer_security,
@@ -65,14 +66,14 @@ public class Industries {
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
 			if (temp.isSelected()){
-				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+				keywords.add(temp.getActionCommand());
 			}
 		}
 
 	}
 
 	public static void main(String[] args) {
-		HashMap<String, String> keywords = new HashMap<String, String>();
+		TreeSet<String> keywords = new TreeSet<String>();
 		
 		new Industries(keywords);
 	}
