@@ -12,8 +12,10 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -54,7 +56,7 @@ import org.docx4j.wml.Tc;
 
 import antlr.collections.impl.Vector;
 
-public class automate {
+public class Automate {
 
 	private static WordprocessingMLPackage wordMLPackage;
 	private static ObjectFactory factory;
@@ -68,35 +70,11 @@ public class automate {
 
 	private static String patentNumber, filingDate, invName, description;
 
-	private static JCheckBox aids = new JCheckBox("AIDS");
-	private static JCheckBox allergy = new JCheckBox("Allergy");
-	private static JCheckBox alzheimer = new JCheckBox("Alzheimer");
-	private static JCheckBox asthma = new JCheckBox("Asthma");
-	private static JCheckBox autoimmune = new JCheckBox("Autoimmune");
-	private static JCheckBox chf = new JCheckBox("CHF");
-	private static JCheckBox copd = new JCheckBox("COPD");
-	private static JCheckBox dementia = new JCheckBox("Dementia");
-	private static JCheckBox diabetes = new JCheckBox("Diabetes");
-	private static JCheckBox dystrophy = new JCheckBox("Dystrophy");
-	private static JCheckBox epilepsy = new JCheckBox("Epilepsy");
-	private static JCheckBox hiv = new JCheckBox("HIV");
-	private static JCheckBox hypertension = new JCheckBox("Hypertension");
-	private static JCheckBox infectious_disease = new JCheckBox(
-			"Infectious disease");
-	private static JCheckBox inflammatory_disease = new JCheckBox(
-			"Inflammatory Disease");
-	private static JCheckBox ischemia = new JCheckBox("Ischemia");
-	private static JCheckBox multiple_sclerosis = new JCheckBox(
-			"Multiple Sclerosis");
-	private static JCheckBox obesity = new JCheckBox("Obesity");
-	private static JCheckBox metabolic_disorders = new JCheckBox(
-			"Metabolic Disorders");
-	private static JCheckBox parkinson = new JCheckBox("Parkinson");
-	private static JCheckBox respiratory = new JCheckBox("Allergy");
-	private static JCheckBox schizophrenia = new JCheckBox("Respiratory");
-	private static JCheckBox sleep = new JCheckBox("Allergy");
-	private static JCheckBox spinal_injury = new JCheckBox("Sleep");
-	private static JCheckBox stroke = new JCheckBox("Stroke");
+	private static HashMap<String, String> keywords;
+
+	public static HashMap<String, String> getKeywords() {
+		return keywords;
+	}
 
 	private static List<Object> getAllElementFromObject(Object obj,
 			Class<?> toSearch) {
@@ -475,11 +453,31 @@ public class automate {
 		//
 
 		SelectOGC ogc = new SelectOGC();
-		LifeScienceDiseases lsd = new LifeScienceDiseases();
-		Agriculture agr = new Agriculture();
-		EngineeringPhysicalSciences eps = new EngineeringPhysicalSciences();
+		System.out.println(ogc.getInitials());
 
-		// getIRDocument();
+		keywords = new HashMap<String, String>();
+		LifeScienceDiseases lsd = new LifeScienceDiseases(keywords);
+		Agriculture agr = new Agriculture(keywords);
+		EngineeringPhysicalSciences eps = new EngineeringPhysicalSciences(keywords);
+		Industries industries = new Industries(keywords);
+		Sensors sensors = new Sensors(keywords);
+		Chemicals chem = new Chemicals(keywords);
+		Software software = new Software(keywords);
+		Instrumentation instru = new Instrumentation(keywords);
+		Electronics elec = new Electronics(keywords);
+		Materials mater = new Materials(keywords);
+		CleanTechnology ctech = new CleanTechnology(keywords);
+
+		System.out.println("Number of Keywords: " + keywords.size());
+		
+		for (Entry<String, String> entry : keywords.entrySet()) {
+			String key = entry.getKey();
+			System.out.println(key);
+		}
+		
+		
+		
+		System.exit(1);
 
 		fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";
 

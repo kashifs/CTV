@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 
@@ -20,7 +22,7 @@ public class Software {
 	private JCheckBox voip = new JCheckBox("VOIP");
 	private JCheckBox opensource = new JCheckBox("Opensource");
 
-	public Software() {
+	public Software(HashMap<String, String> keywords) {
 		JCheckBox[] categories = { algorithms, audio, graphics_technology,
 				machine_learning, peer_to_peer, photo_imaging, user_interface,
 				video_imaging, voip, opensource };
@@ -30,12 +32,15 @@ public class Software {
 
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
-			if (temp.isSelected())
-				System.out.println(temp.getActionCommand());
+			if (temp.isSelected()){
+				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+			}
 		}
 	}
 
 	public static void main(String[] args) {
-		new Software();
+		HashMap<String, String> keywords = new HashMap<String, String>();
+		
+		new Software(keywords);
 	}
 }

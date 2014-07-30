@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 
@@ -28,7 +30,7 @@ public class CleanTechnology {
 	private JCheckBox voltaic = new JCheckBox("Voltaic");
 	private JCheckBox weather = new JCheckBox("Weather");
 
-	public CleanTechnology() {
+	public CleanTechnology(HashMap<String, String> keywords) {
 		JCheckBox[] categories = { green_technology, clean_technology, battery,
 				coal, energy_storage, fuel_cells, hydrogen, natural_gas,
 				nuclear, petrochemical, photonics, remediation,
@@ -40,12 +42,15 @@ public class CleanTechnology {
 
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
-			if (temp.isSelected())
-				System.out.println(temp.getActionCommand());
+			if (temp.isSelected()){
+				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+			}
 		}
 	}
 
 	public static void main(String[] args) {
-		new CleanTechnology();
+		HashMap<String, String> keywords = new HashMap<String, String>();
+		
+		new CleanTechnology(keywords);
 	}
 }

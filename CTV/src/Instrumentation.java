@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 
@@ -19,7 +21,7 @@ public class Instrumentation {
 	private JCheckBox spectroscopy = new JCheckBox("Spectroscopy");
 	private JCheckBox thermal = new JCheckBox("Thermal");
 
-	public Instrumentation() {
+	public Instrumentation(HashMap<String, String> keywords) {
 		JCheckBox[] categories = {chromatography, laser, microscopy, optics, pcr, separation, spectroscopy, thermal};
 
 		int n = JOptionPane.showConfirmDialog(null, categories, "Sensors",
@@ -27,12 +29,15 @@ public class Instrumentation {
 
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
-			if (temp.isSelected())
-				System.out.println(temp.getActionCommand());
+			if (temp.isSelected()) {
+				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+			}
 		}
 	}
 
 	public static void main(String[] args) {
-		new Instrumentation();
+		HashMap<String, String> keywords = new HashMap<String, String>();
+		
+		new Instrumentation(keywords);
 	}
 }

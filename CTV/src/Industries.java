@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 
@@ -46,7 +48,7 @@ public class Industries {
 	private JCheckBox training_education = new JCheckBox("Training & Education");
 	private JCheckBox web_internet = new JCheckBox("Web & Internet");
 
-	public Industries() {
+	public Industries(HashMap<String, String> keywords) {
 		JCheckBox[] categories = { aerospace, automation, automotive,
 				bioinformatics, building, chemical_processing,
 				chemical_synthesis, communications, computer_security,
@@ -62,13 +64,16 @@ public class Industries {
 
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
-			if (temp.isSelected())
-				System.out.println(temp.getActionCommand());
+			if (temp.isSelected()){
+				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+			}
 		}
 
 	}
 
 	public static void main(String[] args) {
-		new Industries();
+		HashMap<String, String> keywords = new HashMap<String, String>();
+		
+		new Industries(keywords);
 	}
 }

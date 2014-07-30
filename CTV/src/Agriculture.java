@@ -1,5 +1,9 @@
+import java.util.HashMap;
+
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
+
+import org.apache.xpath.compiler.Keywords;
 
 /**
  * 
@@ -26,24 +30,27 @@ public class Agriculture {
 	private JCheckBox plant_storage = new JCheckBox("Plant Storage");
 	private JCheckBox plant_varieties = new JCheckBox("Plant Varieties");
 
-	public Agriculture() {
+	public Agriculture(HashMap<String, String> keywords) {
 		JCheckBox[] categories = { agricultural_engineering, agribusiness,
 				agronomics, aquaculture, crop_improvement, entomology,
 				food_science_nutrition, forestry, gmo, non_gmo, paper_pulp,
 				plant_hormones, plant_pathogens, plant_storage, plant_varieties };
 
-		int n = JOptionPane.showConfirmDialog(null, categories,
-				"Agriculture", JOptionPane.OK_CANCEL_OPTION);
+		int n = JOptionPane.showConfirmDialog(null, categories, "Agriculture",
+				JOptionPane.OK_CANCEL_OPTION);
 
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
-			if (temp.isSelected())
-				System.out.println(temp.getActionCommand());
+			if (temp.isSelected()) {
+				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+			}
 		}
 
 	}
 
 	public static void main(String[] args) {
-		new Agriculture();
+		HashMap<String, String> keywords = new HashMap<String, String>();
+
+		new Agriculture(keywords);
 	}
 }

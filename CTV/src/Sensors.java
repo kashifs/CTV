@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 
@@ -13,20 +15,24 @@ public class Sensors {
 	private JCheckBox motion = new JCheckBox("Motion");
 	private JCheckBox particle_radiation = new JCheckBox("Particle & Radiation");
 
-	public Sensors() {
-		JCheckBox[] categories = { biologic, chemical_gas, motion, particle_radiation };
+	public Sensors(HashMap<String, String> keywords) {
+		JCheckBox[] categories = { biologic, chemical_gas, motion,
+				particle_radiation };
 
 		int n = JOptionPane.showConfirmDialog(null, categories, "Sensors",
 				JOptionPane.OK_CANCEL_OPTION);
 
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
-			if (temp.isSelected())
-				System.out.println(temp.getActionCommand());
+			if (temp.isSelected()) {
+				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+			}
 		}
 	}
 
 	public static void main(String[] args) {
-		new Sensors();
+		HashMap<String, String> keywords = new HashMap<String, String>();
+		
+		new Sensors(keywords);
 	}
 }

@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 
@@ -35,7 +37,7 @@ public class LifeScienceDiseases {
 	private JCheckBox spinal_injury = new JCheckBox("Spinal Injury");
 	private JCheckBox stroke = new JCheckBox("Stroke");
 
-	public LifeScienceDiseases() {
+	public LifeScienceDiseases(HashMap<String, String> keywords) {
 
 		JCheckBox[] categories = { aids, allergy, alzheimer, asthma,
 				autoimmune, chf, copd, dementia, diabetes, dystrophy, epilepsy,
@@ -49,13 +51,16 @@ public class LifeScienceDiseases {
 
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
-			if (temp.isSelected())
-				System.out.println(temp.getActionCommand());
+			if (temp.isSelected()) {
+				keywords.put(temp.getActionCommand(), temp.getActionCommand());
+			}
 		}
 
 	}
 
 	public static void main(String[] args) {
-		new LifeScienceDiseases();
+		HashMap<String, String> keywords = new HashMap<String, String>();
+
+		new LifeScienceDiseases(keywords);
 	}
 }
