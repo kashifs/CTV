@@ -50,7 +50,7 @@ public class Automate {
 	private static Tbl appendixII, mainTable;
 
 	private static String patentNumber, filingDate, invName, description;
-	
+
 	private static String ogcInitial;
 
 	private static TreeSet<String> keywords;
@@ -59,7 +59,7 @@ public class Automate {
 		return keywords;
 	}
 
-	private static List<Object> getAllElementFromObject(Object obj,
+	private static List<Object> getAllElementsFromObject(Object obj,
 			Class<?> toSearch) {
 		List<Object> result = new ArrayList<Object>();
 		if (obj instanceof JAXBElement)
@@ -70,7 +70,7 @@ public class Automate {
 		else if (obj instanceof ContentAccessor) {
 			List<?> children = ((ContentAccessor) obj).getContent();
 			for (Object child : children) {
-				result.addAll(getAllElementFromObject(child, toSearch));
+				result.addAll(getAllElementsFromObject(child, toSearch));
 			}
 		}
 		return result;
@@ -113,10 +113,8 @@ public class Automate {
 
 		rspcTop.getContent().add(numTitle);
 		rspcTop.getContent().add(br);
-		// rspcTop.getContent().add(numText);
 
 		rspcBot.getContent().add(br);
-		// rspcBot.getContent().add(br);
 
 		rspcBot.getContent().add(dateTitle);
 		rspcBot.getContent().add(br);
@@ -249,7 +247,7 @@ public class Automate {
 		// TODO fillRowColumn(0, 3, value);
 
 	}
-	
+
 	private static void populateOGC() {
 		fillRowColumn(1, 3, ogcInitial);
 	}
@@ -265,7 +263,10 @@ public class Automate {
 			sb.append(s.toLowerCase() + ", ");
 		}
 
-		String all_keywords = sb.substring(0, (sb.length() - 2));
+		String all_keywords = null;
+		
+		if(sb.length() > 0)
+			all_keywords = sb.substring(0, (sb.length() - 2));
 
 		fillRowColumn(4, 1, all_keywords);
 	}
@@ -339,7 +340,6 @@ public class Automate {
 		// .load(new java.io.File(fileName));
 
 	}
-
 
 	private static void changeNormalFont(Styles styles, ObjectFactory factory,
 			String string) {
@@ -421,7 +421,7 @@ public class Automate {
 		// url = "https://www.google.com/patents/US8352194";
 
 		// getUserLink();
-		
+
 		PatentInformation pInfo = new PatentInformation(url);
 
 		invName = pInfo.getInvName();
@@ -429,11 +429,10 @@ public class Automate {
 		isGranted = pInfo.isPatentGranted();
 		patentNumber = pInfo.getPatentNumber();
 		description = pInfo.getDescription();
-		
+
 		invNames = pInfo.getInventorNames();
 		assignNames = pInfo.getAssigneeNames();
-		
-		
+
 		String irNum = promptIRNumber();
 		System.out.println("IR Number: " + irNum);
 		//
@@ -447,18 +446,17 @@ public class Automate {
 
 		SelectOGC ogc = new SelectOGC();
 		ogcInitial = ogc.getInitials();
-		LifeScienceDiseases lsd = new LifeScienceDiseases(keywords);
-		Agriculture agr = new Agriculture(keywords);
-		EngineeringPhysicalSciences eps = new EngineeringPhysicalSciences(
-				keywords);
-		Industries industries = new Industries(keywords);
-		Sensors sensors = new Sensors(keywords);
-		Chemicals chem = new Chemicals(keywords);
-		Software software = new Software(keywords);
-		Instrumentation instru = new Instrumentation(keywords);
-		Electronics elec = new Electronics(keywords);
-		Materials mater = new Materials(keywords);
-		CleanTechnology ctech = new CleanTechnology(keywords);
+		new LifeScienceDiseases(keywords);
+		new Agriculture(keywords);
+		new EngineeringPhysicalSciences(keywords);
+		new Industries(keywords);
+		new Sensors(keywords);
+		new Chemicals(keywords);
+		new Software(keywords);
+		new Instrumentation(keywords);
+		new Electronics(keywords);
+		new Materials(keywords);
+		new CleanTechnology(keywords);
 
 		fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";
 
@@ -470,7 +468,7 @@ public class Automate {
 		Styles styles = mp.getStyleDefinitionsPart().getJaxbElement();
 		changeNormalFont(styles, factory, "Arial");
 
-		List<Object> tables = getAllElementFromObject(
+		List<Object> tables = getAllElementsFromObject(
 				wordMLPackage.getMainDocumentPart(), Tbl.class);
 
 		mainTable = (Tbl) tables.get(0);
