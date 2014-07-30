@@ -11,8 +11,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 import java.util.TreeSet;
 
 import javax.swing.JFileChooser;
@@ -46,13 +44,13 @@ public class Automate {
 	private static String fileName;
 	private static Vector invNames, assignNames;
 	private static boolean isGranted;
-	
+
 	private static String irNum;
 
 	private static Tbl appendixII, mainTable;
 
 	private static String patentNumber, filingDate, invName, description;
-	
+
 	private static TreeSet<String> keywords;
 
 	public static TreeSet<String> getKeywords() {
@@ -237,51 +235,44 @@ public class Automate {
 	}
 
 	private static void populateMainTable() {
+		populateIRNum();
+		populateKeywords();
+
+	}
+
+	private static void populateIRNum() {
+		fillRowColumn(0, 1, irNum);
+	}
+
+	private static void populateKeywords() {
+		StringBuilder sb = new StringBuilder();
+
+		for (String s : keywords) {
+			sb.append(s.toLowerCase() + ", ");
+		}
+
+		String all_keywords = sb.substring(0, (sb.length() - 2));
+		
+		fillRowColumn(4, 1, all_keywords);
+	}
+
+	private static void fillRowColumn(int rowNum, int colNum, String value) {
 		List rows = mainTable.getContent();
-		Tr firstRow = (Tr) rows.get(0);
-		List cells = firstRow.getContent();
+		Tr row = (Tr) rows.get(rowNum);
+		List cells = row.getContent();
 
-		System.out.println(cells.size());
-		System.out.println("Class: " + cells.get(1).getClass());
-		Tc tc = (Tc) XmlUtils.unwrap(cells.get(1));
-
-		// System.out.println(tc.toString());
-		System.out.println("Content: " + tc.getContent().toString());
+		Tc tc = (Tc) XmlUtils.unwrap(cells.get(colNum));
 		tc.getContent().remove(0);
 
+		R rspc = factory.createR();
 		P spc = factory.createP();
-		R rspcTop = factory.createR();
 
-		Text irNumText = factory.createText();
-		irNumText.setValue(irNum);
-		rspcTop.getContent().add(irNumText);
-		spc.getContent().add(rspcTop);
+		Text text = factory.createText();
+		text.setValue(value);
+		rspc.getContent().add(text);
+		spc.getContent().add(rspc);
 
 		tc.getContent().add(spc);
-		
-		Tr fifthRow = (Tr) rows.get(4);
-		List cells5 = fifthRow.getContent();
-		Tc keywordsCell = (Tc) XmlUtils.unwrap(cells5.get(1));
-		keywordsCell.getContent().remove(0);
-		
-		P keywords_spc = factory.createP();
-		R keywords_rspc = factory.createR();
-		
-		Text kewordsText = factory.createText();
-		
-		StringBuilder sb = new StringBuilder();
-		
-		for (String s : keywords) {
-		    sb.append(s.toLowerCase() + ", ");
-		}
-		
-		String all_keywords = sb.substring(0, (sb.length() - 1));
-		kewordsText.setValue(all_keywords);
-		keywords_rspc.getContent().add(kewordsText);
-		keywords_spc.getContent().add(keywords_rspc);
-		
-		keywordsCell.getContent().add(keywords_spc);
-
 	}
 
 	private static void populateAppendixII() {
@@ -392,8 +383,8 @@ public class Automate {
 	}
 
 	private static String promptIRNumber() {
-		irNum = JOptionPane.showInputDialog(null, "IR Number?",
-				"IR Number", JOptionPane.QUESTION_MESSAGE);
+		irNum = JOptionPane.showInputDialog(null, "IR Number?", "IR Number",
+				JOptionPane.QUESTION_MESSAGE);
 		return irNum;
 	}
 
@@ -448,23 +439,22 @@ public class Automate {
 
 		// getUserLink();
 		fetchPatentData();
-		 String irNum = promptIRNumber();
-		 System.out.println("IR Number: " + irNum);
+		String irNum = promptIRNumber();
+		System.out.println("IR Number: " + irNum);
 		//
 		// String userInitials = promptUserInitials();
 		// System.out.println("User Initials: " + userInitials);
 		//
 		// String tloInitials = promptTLOInitials();
 		// System.out.println("TLO Initials: " + tloInitials);
-	
 
 		keywords = new TreeSet<String>();
-		
-		
+
 		SelectOGC ogc = new SelectOGC();
 		LifeScienceDiseases lsd = new LifeScienceDiseases(keywords);
 		Agriculture agr = new Agriculture(keywords);
-		EngineeringPhysicalSciences eps = new EngineeringPhysicalSciences(keywords);
+		EngineeringPhysicalSciences eps = new EngineeringPhysicalSciences(
+				keywords);
 		Industries industries = new Industries(keywords);
 		Sensors sensors = new Sensors(keywords);
 		Chemicals chem = new Chemicals(keywords);
@@ -473,11 +463,6 @@ public class Automate {
 		Electronics elec = new Electronics(keywords);
 		Materials mater = new Materials(keywords);
 		CleanTechnology ctech = new CleanTechnology(keywords);
-
-		
-		
-		
-
 
 		fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";
 
