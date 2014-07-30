@@ -50,6 +50,8 @@ public class Automate {
 	private static Tbl appendixII, mainTable;
 
 	private static String patentNumber, filingDate, invName, description;
+	
+	private static String ogcInitial;
 
 	private static TreeSet<String> keywords;
 
@@ -236,8 +238,20 @@ public class Automate {
 
 	private static void populateMainTable() {
 		populateIRNum();
+		// TODO populateTLO();
+		// TODO populateDateRec();
+		populateOGC();
 		populateKeywords();
 
+	}
+
+	private static void populateTLO() {
+		// TODO fillRowColumn(0, 3, value);
+
+	}
+	
+	private static void populateOGC() {
+		fillRowColumn(1, 3, ogcInitial);
 	}
 
 	private static void populateIRNum() {
@@ -252,7 +266,7 @@ public class Automate {
 		}
 
 		String all_keywords = sb.substring(0, (sb.length() - 2));
-		
+
 		fillRowColumn(4, 1, all_keywords);
 	}
 
@@ -451,6 +465,7 @@ public class Automate {
 		keywords = new TreeSet<String>();
 
 		SelectOGC ogc = new SelectOGC();
+		ogcInitial = ogc.getInitials();
 		LifeScienceDiseases lsd = new LifeScienceDiseases(keywords);
 		Agriculture agr = new Agriculture(keywords);
 		EngineeringPhysicalSciences eps = new EngineeringPhysicalSciences(
