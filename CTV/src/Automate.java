@@ -45,15 +45,15 @@ public class Automate {
 	private static Vector invNames, assignNames;
 	private static boolean isGranted;
 
-	private static String irNum;
-
 	private static Tbl appendixII, mainTable;
 
 	private static String patentNumber, filingDate, invName, description;
 
-	private static String userInitials, ogcInitials, tloInitials;
+	private static String irNum, tloInitials, dateReceived, ogcInitials,
+			userInitials, stageOfDev;
 
 	private static TreeSet<String> keywords;
+	private static TreeSet<String> categories;
 
 	public static TreeSet<String> getKeywords() {
 		return keywords;
@@ -236,25 +236,30 @@ public class Automate {
 
 	private static void populateMainTable() {
 		populateIRNum();
-		populateUserInitials();
 		populateTLOInitials();
-		// TODO populateDateRec();
+		populateDateReceived();
+		populateUserInitials();
 		populateOGC();
 		populateKeywords();
+		populateCategories();
+		populateStageOfDevelopment();
 
-	}
-
-	private static void populateTLOInitials() {
-		fillRowColumn(0, 3, tloInitials);
-
-	}
-
-	private static void populateOGC() {
-		fillRowColumn(1, 3, ogcInitials);
 	}
 
 	private static void populateIRNum() {
 		fillRowColumn(0, 1, irNum);
+	}
+
+	private static void populateTLOInitials() {
+		fillRowColumn(0, 3, tloInitials);
+	}
+
+	private static void populateDateReceived() {
+		fillRowColumn(1, 1, dateReceived);
+	}
+
+	private static void populateOGC() {
+		fillRowColumn(1, 3, ogcInitials);
 	}
 
 	private static void populateUserInitials() {
@@ -265,7 +270,8 @@ public class Automate {
 		StringBuilder sb = new StringBuilder();
 
 		for (String s : keywords) {
-			sb.append(s.toLowerCase() + ", ");
+			if (!s.equals("HIV")) //TODO list cap words
+				sb.append(s.toLowerCase() + ", ");
 		}
 
 		String all_keywords = null;
@@ -276,14 +282,55 @@ public class Automate {
 		fillRowColumn(4, 1, all_keywords);
 	}
 
-	private static void fillRowColumn(int rowNum, int colNum, String value) {
+	private static void populateCategories() {
+		// TODO remove this
+		categories.add("CATEGORY – this is a test");
+		categories.add("CATEGORY TWICE – this is a test2");
+		Tc tableCell = getRowColumn(5, 1);
+
+		tableCell.getContent().clear();
+
+		P spc = factory.createP();
+		R rspc = factory.createR();
+
+		Br br = factory.createBr();
+
+		Text nextCateg = factory.createText();
+
+		int cutoff = categories.size() - 1;
+		int index = 0;
+
+		for (String s : categories) {
+			nextCateg = factory.createText();
+			nextCateg.setValue(s);
+			rspc.getContent().add(nextCateg);
+			if (index != cutoff)
+				rspc.getContent().add(br);
+			index++;
+		}
+
+		spc.getContent().add(rspc);
+		tableCell.getContent().add(spc);
+	}
+
+	private static void populateStageOfDevelopment() {
+		fillRowColumn(6, 1, stageOfDev);
+	}
+
+	private static Tc getRowColumn(int rowNum, int colNum) {
 		List rows = mainTable.getContent();
 		Tr row = (Tr) rows.get(rowNum);
 		List cells = row.getContent();
 
 		Tc tc = (Tc) XmlUtils.unwrap(cells.get(colNum));
+
+		return tc;
+	}
+
+	private static void fillRowColumn(int rowNum, int colNum, String value) {
+		Tc tc = getRowColumn(rowNum, colNum);
+
 		tc.getContent().clear();
-		;
 
 		R rspc = factory.createR();
 		P spc = factory.createP();
@@ -419,6 +466,17 @@ public class Automate {
 		return tloInitials;
 	}
 
+	private static String promptDateReceived() {
+
+		do {
+			dateReceived = JOptionPane.showInputDialog(null,
+					"When was the IR received?", "Date Received",
+					JOptionPane.QUESTION_MESSAGE);
+		} while (dateReceived == null);
+
+		return dateReceived;
+	}
+
 	private static void populatePatentInformation() throws IOException {
 
 		url = "https://www.google.com/patents/US20120015839";
@@ -449,8 +507,19 @@ public class Automate {
 		else {
 			ogcInitials = "JS";
 		}
-		
+
 		return ogcInitials;
+	}
+
+	private static String promptStageOfDevelopment() {
+		String[] choices = { "Basic R&D", "Clinical", "FDA Approval",
+				"Mfg. Prototype", "On Market", "Preclinical", "In vivo data",
+				"In vitro data", "Proposal", "Target only", "Working software" };
+		stageOfDev = (String) JOptionPane.showInputDialog(null,
+				"What is the stage of development?", "Stage of Development",
+				JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
+
+		return stageOfDev;
 	}
 
 	public static void main(String[] args) throws IOException, Docx4JException {
@@ -461,27 +530,18 @@ public class Automate {
 
 		promptIRNumber();
 		promptTLOInitials();
+		promptDateReceived();
 		promptUserInitials();
 		// promptDateReceived();
 		promptUserOGC();
-
-		// System.out.println("TLO Initials: " + tloInitials);
+		promptStageOfDevelopment();
 
 		keywords = new TreeSet<String>();
+		
+		new KeywordsPrompt(keywords);
 
-//		SelectOGC ogc = new SelectOGC();
-//		ogcInitial = ogc.getInitials();
-		new LifeScienceDiseases(keywords);
-		new Agriculture(keywords);
-		new EngineeringPhysicalSciences(keywords);
-		new Industries(keywords);
-		new Sensors(keywords);
-		new Chemicals(keywords);
-		new Software(keywords);
-		new Instrumentation(keywords);
-		new Electronics(keywords);
-		new Materials(keywords);
-		new CleanTechnology(keywords);
+
+		categories = new TreeSet<String>();
 
 		fileName = "/Users/kashif/Desktop/IR-Assessment-CUXXXX_YYYYMMDD.docx";
 
@@ -502,8 +562,12 @@ public class Automate {
 		appendixII = (Tbl) tables.get(1);
 		populateAppendixII();
 
-		String newFileName = fileName.substring(0, fileName.length() - 5)
-				+ "_1.docx";
+		// String newFileName = System.getProperty("user.home") +
+		// "/Desktop/IR-Assessment-"
+		// + irNum + "_" + "XXXXXXXX_1.docx";
+
+		String newFileName = System.getProperty("user.home")
+				+ "/Desktop/work.docx";
 
 		wordMLPackage.save(new java.io.File(newFileName));
 	}
