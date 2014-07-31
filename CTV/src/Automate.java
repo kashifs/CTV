@@ -51,7 +51,7 @@ public class Automate {
 
 	private static String patentNumber, filingDate, invName, description;
 
-	private static String ogcInitial;
+	private static String userInitials, ogcInitial, tloInitials;
 
 	private static TreeSet<String> keywords;
 
@@ -236,15 +236,16 @@ public class Automate {
 
 	private static void populateMainTable() {
 		populateIRNum();
-		// TODO populateTLO();
+		populateUserInitials();
+		populateTLOInitials();
 		// TODO populateDateRec();
 		populateOGC();
 		populateKeywords();
 
 	}
 
-	private static void populateTLO() {
-		// TODO fillRowColumn(0, 3, value);
+	private static void populateTLOInitials() {
+		 fillRowColumn(0, 3, tloInitials);
 
 	}
 
@@ -254,6 +255,10 @@ public class Automate {
 
 	private static void populateIRNum() {
 		fillRowColumn(0, 1, irNum);
+	}
+	
+	private static void populateUserInitials(){
+		fillRowColumn(2, 3, userInitials);
 	}
 
 	private static void populateKeywords() {
@@ -277,7 +282,8 @@ public class Automate {
 		List cells = row.getContent();
 
 		Tc tc = (Tc) XmlUtils.unwrap(cells.get(colNum));
-		tc.getContent().remove(0);
+		tc.getContent().clear();;
+		
 
 		R rspc = factory.createR();
 		P spc = factory.createP();
@@ -344,8 +350,6 @@ public class Automate {
 	private static void changeNormalFont(Styles styles, ObjectFactory factory,
 			String string) {
 		for (Style s : styles.getStyle()) {
-			// System.out.println(s.getStyleId());
-			// System.out.println(s.getName());
 			if (s.getName().getVal().equals("Normal")) {
 				RPr rpr = s.getRPr();
 				if (rpr == null) {
@@ -368,25 +372,25 @@ public class Automate {
 	private static String promptIRNumber() {
 		irNum = JOptionPane.showInputDialog(null, "IR Number?", "IR Number",
 				JOptionPane.QUESTION_MESSAGE);
+		
+		irNum = irNum.toUpperCase();
+		
 		return irNum;
 	}
 
 	private static boolean isNotCorrectInitials(String userInitials) {
 		if (userInitials == null)
-			System.exit(0);
-
-		System.out.println(userInitials.length());
+			return true;
 
 		boolean correctLength = (userInitials.length() == 3)
 				|| (userInitials.length() == 2);
-		System.out.println("correctLength: " + correctLength);
 
 		return !userInitials.matches("[a-zA-Z]+") || !correctLength;
 	}
 
 	private static String promptUserInitials() {
 
-		String userInitials;
+		
 		do {
 			userInitials = JOptionPane.showInputDialog(null,
 					"What are your initials?", "Your Initials",
@@ -398,30 +402,30 @@ public class Automate {
 					+ userInitials.charAt(1);
 		}
 
-		return userInitials.toUpperCase();
+		userInitials = userInitials.toUpperCase();
+		
+		return userInitials;
 	}
 
 	private static String promptTLOInitials() {
-
-		String tloInitials;
 
 		do {
 			tloInitials = JOptionPane.showInputDialog(null,
 					"What are the TLO's initials?", "TLO Initials",
 					JOptionPane.QUESTION_MESSAGE);
 		} while (isNotCorrectInitials(tloInitials));
+		
+		tloInitials = tloInitials.toUpperCase();
 
-		return tloInitials.toUpperCase();
+		return tloInitials;
 	}
-
-	public static void main(String[] args) throws IOException, Docx4JException {
-
+	
+	private static void populatePatentInformation() throws IOException{
+		
 		url = "https://www.google.com/patents/US20120015839";
 		// url = "https://www.google.com/patents/US20120202214";
 		// url = "https://www.google.com/patents/US8352194";
-
-		// getUserLink();
-
+		
 		PatentInformation pInfo = new PatentInformation(url);
 
 		invName = pInfo.getInvName();
@@ -432,14 +436,21 @@ public class Automate {
 
 		invNames = pInfo.getInventorNames();
 		assignNames = pInfo.getAssigneeNames();
+	}
 
-		String irNum = promptIRNumber();
-		System.out.println("IR Number: " + irNum);
-		//
-		// String userInitials = promptUserInitials();
-		// System.out.println("User Initials: " + userInitials);
-		//
-		// String tloInitials = promptTLOInitials();
+	public static void main(String[] args) throws IOException, Docx4JException {
+
+
+		// getUserLink();
+
+		populatePatentInformation();
+
+
+		promptIRNumber();
+		promptUserInitials();
+		promptTLOInitials();
+		
+		
 		// System.out.println("TLO Initials: " + tloInitials);
 
 		keywords = new TreeSet<String>();
@@ -458,7 +469,7 @@ public class Automate {
 		new Materials(keywords);
 		new CleanTechnology(keywords);
 
-		fileName = "/Users/kashif/Desktop/IR-Assessment-CU15002_20140717.docx";
+		fileName = "/Users/kashif/Desktop/IR-Assessment-CUXXXX_YYYYMMDD.docx";
 
 		wordMLPackage = WordprocessingMLPackage
 				.load(new java.io.File(fileName));
