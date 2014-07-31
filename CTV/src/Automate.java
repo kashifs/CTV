@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.TreeSet;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.JAXBElement;
+
 import org.docx4j.jaxb.Context;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -51,7 +51,7 @@ public class Automate {
 
 	private static String patentNumber, filingDate, invName, description;
 
-	private static String userInitials, ogcInitial, tloInitials;
+	private static String userInitials, ogcInitials, tloInitials;
 
 	private static TreeSet<String> keywords;
 
@@ -245,19 +245,19 @@ public class Automate {
 	}
 
 	private static void populateTLOInitials() {
-		 fillRowColumn(0, 3, tloInitials);
+		fillRowColumn(0, 3, tloInitials);
 
 	}
 
 	private static void populateOGC() {
-		fillRowColumn(1, 3, ogcInitial);
+		fillRowColumn(1, 3, ogcInitials);
 	}
 
 	private static void populateIRNum() {
 		fillRowColumn(0, 1, irNum);
 	}
-	
-	private static void populateUserInitials(){
+
+	private static void populateUserInitials() {
 		fillRowColumn(2, 3, userInitials);
 	}
 
@@ -269,8 +269,8 @@ public class Automate {
 		}
 
 		String all_keywords = null;
-		
-		if(sb.length() > 0)
+
+		if (sb.length() > 0)
 			all_keywords = sb.substring(0, (sb.length() - 2));
 
 		fillRowColumn(4, 1, all_keywords);
@@ -282,8 +282,8 @@ public class Automate {
 		List cells = row.getContent();
 
 		Tc tc = (Tc) XmlUtils.unwrap(cells.get(colNum));
-		tc.getContent().clear();;
-		
+		tc.getContent().clear();
+		;
 
 		R rspc = factory.createR();
 		P spc = factory.createP();
@@ -372,9 +372,9 @@ public class Automate {
 	private static String promptIRNumber() {
 		irNum = JOptionPane.showInputDialog(null, "IR Number?", "IR Number",
 				JOptionPane.QUESTION_MESSAGE);
-		
+
 		irNum = irNum.toUpperCase();
-		
+
 		return irNum;
 	}
 
@@ -390,7 +390,6 @@ public class Automate {
 
 	private static String promptUserInitials() {
 
-		
 		do {
 			userInitials = JOptionPane.showInputDialog(null,
 					"What are your initials?", "Your Initials",
@@ -403,7 +402,7 @@ public class Automate {
 		}
 
 		userInitials = userInitials.toUpperCase();
-		
+
 		return userInitials;
 	}
 
@@ -414,18 +413,18 @@ public class Automate {
 					"What are the TLO's initials?", "TLO Initials",
 					JOptionPane.QUESTION_MESSAGE);
 		} while (isNotCorrectInitials(tloInitials));
-		
+
 		tloInitials = tloInitials.toUpperCase();
 
 		return tloInitials;
 	}
-	
-	private static void populatePatentInformation() throws IOException{
-		
+
+	private static void populatePatentInformation() throws IOException {
+
 		url = "https://www.google.com/patents/US20120015839";
 		// url = "https://www.google.com/patents/US20120202214";
 		// url = "https://www.google.com/patents/US8352194";
-		
+
 		PatentInformation pInfo = new PatentInformation(url);
 
 		invName = pInfo.getInvName();
@@ -438,25 +437,40 @@ public class Automate {
 		assignNames = pInfo.getAssigneeNames();
 	}
 
-	public static void main(String[] args) throws IOException, Docx4JException {
+	private static String promptUserOGC() {
+		String[] choices = { "physical sciences or medical devices",
+				"life sciences" };
+		String input = (String) JOptionPane.showInputDialog(null,
+				"What type of technology is it?", "Office of General Council",
+				JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
 
+		if (input.equals("life sciences"))
+			ogcInitials = "GM/TB";
+		else {
+			ogcInitials = "JS";
+		}
+		
+		return ogcInitials;
+	}
+
+	public static void main(String[] args) throws IOException, Docx4JException {
 
 		// getUserLink();
 
 		populatePatentInformation();
 
-
 		promptIRNumber();
-		promptUserInitials();
 		promptTLOInitials();
-		
-		
+		promptUserInitials();
+		// promptDateReceived();
+		promptUserOGC();
+
 		// System.out.println("TLO Initials: " + tloInitials);
 
 		keywords = new TreeSet<String>();
 
-		SelectOGC ogc = new SelectOGC();
-		ogcInitial = ogc.getInitials();
+//		SelectOGC ogc = new SelectOGC();
+//		ogcInitial = ogc.getInitials();
 		new LifeScienceDiseases(keywords);
 		new Agriculture(keywords);
 		new EngineeringPhysicalSciences(keywords);
