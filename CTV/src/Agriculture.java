@@ -1,10 +1,8 @@
-import java.util.HashMap;
 import java.util.TreeSet;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 
-import org.apache.xpath.compiler.Keywords;
 
 /**
  * 
@@ -13,6 +11,7 @@ import org.apache.xpath.compiler.Keywords;
  */
 public class Agriculture {
 
+	
 	private JCheckBox agricultural_engineering = new JCheckBox(
 			"Agricultural Engineering");
 	private JCheckBox agribusiness = new JCheckBox("Agribusiness");
