@@ -55,9 +55,6 @@ public class Automate {
 	private static TreeSet<String> keywords;
 	private static TreeSet<String> categories;
 
-	public static TreeSet<String> getKeywords() {
-		return keywords;
-	}
 
 	private static List<Object> getAllElementsFromObject(Object obj,
 			Class<?> toSearch) {
@@ -270,7 +267,7 @@ public class Automate {
 		StringBuilder sb = new StringBuilder();
 
 		for (String s : keywords) {
-			if (!s.equals("HIV")) //TODO list cap words
+			if (!s.equals("HIV")) // TODO list cap words
 				sb.append(s.toLowerCase() + ", ");
 		}
 
@@ -283,9 +280,6 @@ public class Automate {
 	}
 
 	private static void populateCategories() {
-		// TODO remove this
-		categories.add("CATEGORY – this is a test");
-		categories.add("CATEGORY TWICE – this is a test2");
 		Tc tableCell = getRowColumn(5, 1);
 
 		tableCell.getContent().clear();
@@ -301,6 +295,7 @@ public class Automate {
 		int index = 0;
 
 		for (String s : categories) {
+			System.out.println("Category: " + s);
 			nextCateg = factory.createText();
 			nextCateg.setValue(s);
 			rspc.getContent().add(nextCateg);
@@ -537,11 +532,10 @@ public class Automate {
 		promptStageOfDevelopment();
 
 		keywords = new TreeSet<String>();
-		
 		new KeywordsPrompt(keywords);
-
-
+		
 		categories = new TreeSet<String>();
+		new CategoriesPrompt(categories);
 
 		fileName = "/Users/kashif/Desktop/IR-Assessment-CUXXXX_YYYYMMDD.docx";
 

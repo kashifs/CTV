@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
  */
 public class KeywordsPrompt {
 
-	private static TreeSet<String> keywords = new TreeSet<String>();
+	private static TreeSet<String> keywords;
 	private static int skip = 0;
 
 	private static final String[] LIFE_SCIENCE_DISEASES = { "AIDS", "Allergy",
@@ -75,7 +75,9 @@ public class KeywordsPrompt {
 			"Petrochemical", "Photonics", "Remediation", "Renewable Energy",
 			"Solar", "Sulfur", "Sustainable", "Urban", "Voltaic", "Weather" };
 
-	public KeywordsPrompt(TreeSet<String> keywords) {
+	public KeywordsPrompt(TreeSet<String> userKeywords) {
+		
+		keywords = userKeywords;
 
 		runPrompt(LIFE_SCIENCE_DISEASES, "Life Science Diseases");
 		runPrompt(AGRICULTURE, "Agriculture");
