@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 public class KeywordsPrompt {
 
 	private static TreeSet<String> keywords = new TreeSet<String>();
+	private static int skip = 0;
 
 	private static final String[] LIFE_SCIENCE_DISEASES = { "AIDS", "Allergy",
 			"Alzheimer", "Asthma", "Autoimmune", "CHF", "COPD", "Dementia",
@@ -75,7 +76,7 @@ public class KeywordsPrompt {
 			"Solar", "Sulfur", "Sustainable", "Urban", "Voltaic", "Weather" };
 
 	public KeywordsPrompt(TreeSet<String> keywords) {
-		
+
 		runPrompt(LIFE_SCIENCE_DISEASES, "Life Science Diseases");
 		runPrompt(AGRICULTURE, "Agriculture");
 		runPrompt(ENGINEERING_PHYSICAL_SCI, "Engineering Physical Sciences");
@@ -86,11 +87,19 @@ public class KeywordsPrompt {
 		runPrompt(INSTRUMENTATION, "Instrumentation");
 		runPrompt(ELECTRONICS, "Electronics");
 		runPrompt(MATERIALS, "Materials");
-		runPrompt(CLEAN_TECHNOLOGY, "Clean Technology");
-
+		runPrompt(CLEAN_TECHNOLOGY, "Clean Technology", true);
 	}
 
 	private static void runPrompt(String[] promptKeywords, String title) {
+		runPrompt(promptKeywords, title, false);
+	}
+
+	private static void runPrompt(String[] promptKeywords, String title,
+			boolean last) {
+		
+		if (skip != 0)
+			return;
+		
 		int numCategs = promptKeywords.length;
 		JCheckBox[] categories = new JCheckBox[numCategs];
 
@@ -98,8 +107,19 @@ public class KeywordsPrompt {
 			categories[i] = new JCheckBox(promptKeywords[i]);
 		}
 
-		int n = JOptionPane.showConfirmDialog(null, categories, title,
-				JOptionPane.OK_CANCEL_OPTION);
+		String[] options = null;
+
+		if (!last) {
+			options = new String[] { "Continue", "Done" };
+		} else {
+			options = new String[] { "Done" };
+		}
+
+		skip = JOptionPane.showOptionDialog(null, categories, title,
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
+				null, options, options[0]);
+		
+		System.out.println("skip: " + skip);
 
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];
@@ -112,8 +132,6 @@ public class KeywordsPrompt {
 	public static void main(String[] args) {
 		TreeSet<String> keywords = new TreeSet<String>();
 		new KeywordsPrompt(keywords);
-		
-
 
 	}
 }
