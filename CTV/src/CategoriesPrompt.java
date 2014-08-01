@@ -150,7 +150,7 @@ public class CategoriesPrompt {
 				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
 				null, options, options[0]);
 
-		System.out.println("skip: " + skip);
+//		System.out.println("skip: " + skip);
 
 		for (int i = 0; i < categs.length; i++) {
 			JCheckBox temp = (JCheckBox) categs[i];

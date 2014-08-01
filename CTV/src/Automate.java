@@ -21,10 +21,6 @@ import org.docx4j.jaxb.Context;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.wml.*;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.openpackaging.parts.relationships.Namespaces;
 import org.docx4j.XmlUtils;
@@ -50,11 +46,10 @@ public class Automate {
 	private static String patentNumber, filingDate, invName, description;
 
 	private static String irNum, tloInitials, dateReceived, ogcInitials,
-			userInitials, stageOfDev;
+			userInitials, descriptiveTitle, stageOfDev;
 
 	private static TreeSet<String> keywords;
 	private static TreeSet<String> categories;
-
 
 	private static List<Object> getAllElementsFromObject(Object obj,
 			Class<?> toSearch) {
@@ -223,7 +218,6 @@ public class Automate {
 
 			return (Hyperlink) XmlUtils.unmarshalString(hpl, Context.jc,
 					P.Hyperlink.class);
-			// return (Hyperlink)XmlUtils.unmarshalString(hpl);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -231,16 +225,30 @@ public class Automate {
 		}
 	}
 
-	private static void populateMainTable() {
-		populateIRNum();
-		populateTLOInitials();
-		populateDateReceived();
-		populateUserInitials();
-		populateOGC();
-		populateKeywords();
-		populateCategories();
-		populateStageOfDevelopment();
+	private static Tc getRowColumn(int rowNum, int colNum) {
+		List rows = mainTable.getContent();
+		Tr row = (Tr) rows.get(rowNum);
+		List cells = row.getContent();
 
+		Tc tc = (Tc) XmlUtils.unwrap(cells.get(colNum));
+
+		return tc;
+	}
+
+	private static void fillRowColumn(int rowNum, int colNum, String value) {
+		Tc tc = getRowColumn(rowNum, colNum);
+
+		tc.getContent().clear();
+
+		R rspc = factory.createR();
+		P spc = factory.createP();
+
+		Text text = factory.createText();
+		text.setValue(value);
+		rspc.getContent().add(text);
+		spc.getContent().add(rspc);
+
+		tc.getContent().add(spc);
 	}
 
 	private static void populateIRNum() {
@@ -254,13 +262,17 @@ public class Automate {
 	private static void populateDateReceived() {
 		fillRowColumn(1, 1, dateReceived);
 	}
-
+	
 	private static void populateOGC() {
 		fillRowColumn(1, 3, ogcInitials);
 	}
 
 	private static void populateUserInitials() {
 		fillRowColumn(2, 3, userInitials);
+	}
+	
+	private static void populateDescriptiveTitle() {
+		fillRowColumn(3, 1, descriptiveTitle);
 	}
 
 	private static void populateKeywords() {
@@ -312,30 +324,16 @@ public class Automate {
 		fillRowColumn(6, 1, stageOfDev);
 	}
 
-	private static Tc getRowColumn(int rowNum, int colNum) {
-		List rows = mainTable.getContent();
-		Tr row = (Tr) rows.get(rowNum);
-		List cells = row.getContent();
-
-		Tc tc = (Tc) XmlUtils.unwrap(cells.get(colNum));
-
-		return tc;
-	}
-
-	private static void fillRowColumn(int rowNum, int colNum, String value) {
-		Tc tc = getRowColumn(rowNum, colNum);
-
-		tc.getContent().clear();
-
-		R rspc = factory.createR();
-		P spc = factory.createP();
-
-		Text text = factory.createText();
-		text.setValue(value);
-		rspc.getContent().add(text);
-		spc.getContent().add(rspc);
-
-		tc.getContent().add(spc);
+	private static void populateMainTable() {
+		populateIRNum();
+		populateTLOInitials();
+		populateDateReceived();
+		populateOGC();
+		populateUserInitials();
+		populateDescriptiveTitle();
+		populateKeywords();
+		populateCategories();
+		populateStageOfDevelopment();
 	}
 
 	private static void populateAppendixII() {
@@ -449,7 +447,6 @@ public class Automate {
 	}
 
 	private static String promptTLOInitials() {
-
 		do {
 			tloInitials = JOptionPane.showInputDialog(null,
 					"What are the TLO's initials?", "TLO Initials",
@@ -462,7 +459,6 @@ public class Automate {
 	}
 
 	private static String promptDateReceived() {
-
 		do {
 			dateReceived = JOptionPane.showInputDialog(null,
 					"When was the IR received?", "Date Received",
@@ -488,6 +484,16 @@ public class Automate {
 
 		invNames = pInfo.getInventorNames();
 		assignNames = pInfo.getAssigneeNames();
+	}
+
+	private static String promptDescriptiveTitle() {
+		do {
+			descriptiveTitle = JOptionPane.showInputDialog(null,
+					"What is the title of this invention? (from IR)",
+					"Descriptive Title", JOptionPane.QUESTION_MESSAGE);
+		} while (descriptiveTitle == null);
+
+		return descriptiveTitle;
 	}
 
 	private static String promptUserOGC() {
@@ -527,13 +533,13 @@ public class Automate {
 		promptTLOInitials();
 		promptDateReceived();
 		promptUserInitials();
-		// promptDateReceived();
+		promptDescriptiveTitle();
 		promptUserOGC();
 		promptStageOfDevelopment();
 
 		keywords = new TreeSet<String>();
 		new KeywordsPrompt(keywords);
-		
+
 		categories = new TreeSet<String>();
 		new CategoriesPrompt(categories);
 
