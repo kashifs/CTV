@@ -5,7 +5,7 @@ import javax.swing.JOptionPane;
 
 /**
  * 
- * @author modified from code found at: www.codejava.net
+ * @author Kashif Smith
  *
  */
 public class KeywordsPrompt {
@@ -121,7 +121,7 @@ public class KeywordsPrompt {
 				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
 				null, options, options[0]);
 		
-		System.out.println("skip: " + skip);
+//		System.out.println("skip: " + skip);
 
 		for (int i = 0; i < categories.length; i++) {
 			JCheckBox temp = (JCheckBox) categories[i];

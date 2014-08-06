@@ -262,7 +262,7 @@ public class Automate {
 	private static void populateDateReceived() {
 		fillRowColumn(1, 1, dateReceived);
 	}
-	
+
 	private static void populateOGC() {
 		fillRowColumn(1, 3, ogcInitials);
 	}
@@ -270,7 +270,7 @@ public class Automate {
 	private static void populateUserInitials() {
 		fillRowColumn(2, 3, userInitials);
 	}
-	
+
 	private static void populateDescriptiveTitle() {
 		fillRowColumn(3, 1, descriptiveTitle);
 	}
@@ -279,8 +279,11 @@ public class Automate {
 		StringBuilder sb = new StringBuilder();
 
 		for (String s : keywords) {
-			if (!s.equals("HIV")) // TODO list cap words
+			if (shouldBeCapital(s))
+				sb.append(s + ", ");
+			else {
 				sb.append(s.toLowerCase() + ", ");
+			}
 		}
 
 		String all_keywords = null;
@@ -289,6 +292,18 @@ public class Automate {
 			all_keywords = sb.substring(0, (sb.length() - 2));
 
 		fillRowColumn(4, 1, all_keywords);
+	}
+
+	private static boolean shouldBeCapital(String input) {
+		if (input.equals("AIDS") || input.equals("CHF") || input.equals("COPD")
+				|| input.equals("HIV") || input.equals("GMO")
+				|| input.equals("Non-GMO") || input.equals("MEMS")
+				|| input.equals("RF-MEMS") || input.equals("SLS")
+				|| input.equals("P2P") || input.equals("VOIP")
+				|| input.equals("PCR") || input.equals("EDA")
+				|| input.equals("GPS"))
+			return true;
+		return false;
 	}
 
 	private static void populateCategories() {

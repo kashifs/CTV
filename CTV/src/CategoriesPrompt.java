@@ -5,7 +5,7 @@ import javax.swing.JOptionPane;
 
 /**
  * 
- * @author modified from code found at: www.codejava.net
+ * @author Kashif Smith
  *
  */
 public class CategoriesPrompt {
